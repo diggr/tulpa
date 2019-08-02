@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">  
+        <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+        <title>{{ title }}</title>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.9.2/d3.js"></script>
+        <link href="https://fonts.googleapis.com/css?family=Lora&display=swap" rel="stylesheet"> 
+        <link href="https://fonts.googleapis.com/css?family=Archivo&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=IBM+Plex+Serif&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Cairo&display=swap" rel="stylesheet"> 
+
+
+
+        <style type="text/css">
+            body {
+                margin: 1em;
+                font-size: 12px;
+                font-family: 'Helvetica', 'Arial', sans-serif;
+                font-family: 'Cairo', sans-serif;
+                background: #faf5f9
+            }       
+            
+            h1 {
+                font-weight: 300;
+                font-size: 45px;
+                font-family: 'Cairo', sans-serif;
+            }
+
+            h3 {
+                font-weight: 300;
+                font-size: 30px;
+                line-height: 38px;                
+                margin-bottom: 20px;
+                padding-bottom: 0px;
+                padding-top: 0px;
+                margin-top: 0px;
+            }
+
+            .curlyBracket {
+                stroke: gray;
+                stroke-width: 2px;
+                fill: none;
+            }            
+
+            .tooltip {
+                color: white;
+                position: absolute;
+                text-align: center;
+                padding: 2px;
+                font: 10px sans-serif;
+                background: rgba(0,0,0,.6);
+                pointer-events: none;
+                border-radius: 3px;
+            }        
+            .boxart {
+                float:left;
+                height: 180px;
+                width: 150px;
+                background-color: white;
+                margin-right: 20px;
+                vertical-align: center;
+            }
+
+            .releaseDate {
+                font-size: 14px;
+                margin-bottom: 10px;
+            }
+            
+            .gameTitle {
+                font-size: 12px;
+                font-weight: 300;
+            }
+
+            #gameDetails {
+                position: absolute;
+                width: 400px;
+                line-height: 18px;
+                border-right: 1px solid gray;
+                border-left: 1px solid gray;
+                height: 280px;
+                border-radius: 10px;
+                padding: 20px;
+                opacity: 0;
+                margin-top: 20px;
+            }
+
+            #gameSelectorDiv {
+                float: right;
+                margin-top: 50px;
+            }
+            #header {
+                float: left;
+            }
+
+            select {
+                width: 400px;
+                border: 0px solid gray;
+                font-size: 20px;
+                color: afafaf;
+                padding: 10px;
+                border-radius: 3px
+            }
+
+            select option {
+                width: 400px;
+                font-size: 15px;
+                color: afafaf;
+                padding: 10px;                
+            }
+
+
+            .main-svg {
+                
+            }
+        </style>
+
+    </head>
+    <body>
+        <div id="header">
+            <h1>{{ title }}</h1>
+        </div>
+        <div id="gameSelectorDiv">
+
+        </div>
+
+        <div id="svg"></div>
+        <div id="gameDetails"></div>
+
+
+
+
+        <script type="text/javascript">
+
+
+            const dataset = JSON.parse(
+                {{ dataset }}
+            )
+            const years = JSON.parse(
+                {{years}}
+            )
+
+            // Helper functions
+            
+            // curly bracket function: http://bl.ocks.org/alexhornbake/6005176
+            function makeCurlyBrace(x1,y1,x2,y2,w,q)
+            {
+                //Calculate unit vector
+                var dx = x1-x2;
+                var dy = y1-y2;
+                var len = Math.sqrt(dx*dx + dy*dy);
+                dx = dx / len;
+                dy = dy / len;
+    
+                //Calculate Control Points of path,
+                var qx1 = x1 + q*w*dy;
+                var qy1 = y1 - q*w*dx;
+                var qx2 = (x1 - .25*len*dx) + (1-q)*w*dy;
+                var qy2 = (y1 - .25*len*dy) - (1-q)*w*dx;
+                var tx1 = (x1 -  .5*len*dx) + w*dy;
+                var ty1 = (y1 -  .5*len*dy) - w*dx;
+                var qx3 = x2 + q*w*dy;
+                var qy3 = y2 - q*w*dx;
+                var qx4 = (x1 - .75*len*dx) + (1-q)*w*dy;
+                var qy4 = (y1 - .75*len*dy) - (1-q)*w*dx;
+    
+                return ( "M " +  x1 + " " +  y1 +
+                        " Q " + qx1 + " " + qy1 + " " + qx2 + " " + qy2 + 
+                        " T " + tx1 + " " + ty1 +
+                        " M " +  x2 + " " +  y2 +
+                        " Q " + qx3 + " " + qy3 + " " + qx4 + " " + qy4 + 
+                        " T " + tx1 + " " + ty1 );
+            }
+
+
+
+            function initVis(w, h, containerName) {
+                const vis = d3.select('#'+containerName)
+                    .append('svg')
+                        .attr('class', 'main-svg')
+                        .attr('width', w)
+                        .attr('height', h)
+                return vis
+            }
+
+            function initTooltip() {
+                // prepare tooltip element
+                const tooltip = d3.select("body").append('div')
+                    .attr('class', 'tooltip')
+                    .style('opacity', 0)
+                return tooltip
+            }
+            function resetTooltip(tp) {
+                tp
+                    .transition()
+                    .duration(100)
+                    .style('opacity', 0);                
+            }
+
+            function getParentNodeData(n) {
+                return d3.select(n.parentNode).node().__data__
+            }
+
+            function timelineBackground(svg, years, h) {
+                const bg = vis.selectAll('.bg')
+                    .data(years)
+                    .enter().append('rect')
+                        .attr('fill', (d) => d%2 === 0 ? '#faf5f9' : 'white' )
+                        .attr('x', (d) => {  return x(d3.isoParse(d.toString()+"-1-1")) })
+                        .attr('y', 30)
+                        .attr('height', h-50)
+                        .attr('width', (d) => {
+                            return xValue = x(d3.isoParse((d+1).toString()+"-01-01"))-x(d3.isoParse(d.toString()+"-01-1"))
+                        })                        
+
+                const yearLabels = vis.selectAll('g.yearLabels')
+                .data(allYears)
+                .enter().append('text')
+                    .text((d) => d)
+                    .style('font-size', 11)
+                    .attr('x', (d) => 6+x(d3.isoParse(d.toString()+"-1-1")))
+                    .attr('y', 25)
+
+            }
+
+            function normalizeDate(yearString) {
+                if (yearString.length === 4) {
+                    return d3.isoParse(yearString+"-1-1")
+                }
+                else {
+                    return d3.isoParse(yearString)
+                }
+            }
+
+            // SETUP
+            const W = 1900
+            const H = 300
+            const offset = 70
+
+            const releaseMarkerColors = {
+                JP: "red",
+                US: "blue",
+                EU: "green"
+            }
+
+            //const years = d3.range(1993, 2020)
+            const regions = [ 'US', 'JP', 'EU']
+
+            const allYears = d3.range(d3.min(years)-1, d3.max(years)+2)
+
+            // SCALES
+            const x = d3.scaleTime()
+                .domain([ new Date(d3.min(years)-1, 0, 1), new Date(d3.max(years)+2, 0 ,1)])
+                .range([0, W])                
+            const y = d3.scaleOrdinal()
+                .domain(regions)
+                .range(d3.range(offset, H, (H-offset*2)/(regions.length-1)))
+
+
+            // Initialize svg
+            const vis = initVis(W, H, 'svg')
+            timelineBackground(vis, years, H)
+            const tooltip = initTooltip()
+            const gameDetails = d3.select('#gameDetails')
+
+
+            // Add visualization elements
+            const regionTimeline = vis.selectAll('.regions') 
+                .data(regions)
+                .enter().append('g')
+
+            regionTimeline.append('text')
+                .attr('x', 6)
+                .attr('y', (d) => y(d) - 3)
+                .text((d) => d)
+                .style('font-size', '11px')
+                .attr('fill', (d) => releaseMarkerColors[d])
+
+
+            regionTimeline.append('rect')
+                .attr('x', 0)
+                .attr('y', (d) => y(d))
+                .attr('width', W)
+                .attr('height', 1)
+                .attr('fill', (d) => releaseMarkerColors[d])
+                .style('opacity', '0.3')
+
+
+            const games = vis.selectAll('.games')
+                .data(dataset)
+                .enter().append('g')
+
+
+            function releaseAreaPoints(releases) {
+                //console.log(releases)
+
+                let points = ""
+                if (releases.length===1)
+                    return ""
+                else if (releases.length === 2) {
+                    jpRelease = releases.filter((d) => d.region === 'JP' ? d : null)[0]
+                    if (jpRelease) {
+                    otherRelease = releases.filter((d) => d.region !== 'JP' ? d : null)[0]
+                    points = [
+                        [x(normalizeDate(jpRelease.date)), y(jpRelease.region)],
+                        [x(normalizeDate(otherRelease.date)), y(otherRelease.region)],
+                        [x(normalizeDate(jpRelease.date)), y(otherRelease.region)]
+                    ]
+                    points = points.map((d) => d.join(',')).join(' ') }
+                }
+                else if (releases.length === 3) {
+                    jp = releases.filter((d) => d.region === 'JP' ? d : null)[0]
+                    eu = releases.filter((d) => d.region === 'EU' ? d : null)[0]
+                    us = releases.filter((d) => d.region === 'US' ? d : null)[0]
+                    points = [
+                        [x(normalizeDate(jp.date)), y(jp.region)],
+                        [x(normalizeDate(eu.date))+1, y(eu.region)],
+                        [x(normalizeDate(jp.date))+1, y(eu.region)],
+                        [x(normalizeDate(jp.date)), y(jp.region)],
+                        [x(normalizeDate(us.date))+1, y(us.region)],
+                        [x(normalizeDate(jp.date))+1, y(us.region)]
+                    ]     
+                    points = points.map((d) => d.join(',')).join(' ')             
+                }
+                return points
+            }
+
+
+            const areas = vis.selectAll('.release_area')//.append('g')
+                .data(dataset).enter().append('g')
+
+            areas.append('polygon')
+                    .attr('points', (d) => releaseAreaPoints(d[1]))
+                    .attr('fill' ,'teal')
+                    .style('opacity', 0.05)
+
+
+            const boxartImageLink = (url) => {
+                if (url !== "")
+                    return "<img src='"+url+"' width='150' />"
+                else
+                    return "&nbsp;&nbsp;no boxart available"
+            }
+
+            const getGameDetailsPosition = (data) => {
+                for (const release of data) {
+                    if (release.region === 'JP')
+                    {
+                        let pos = Math.round(x(normalizeDate(release.date))) - 15
+                        if ((pos+400) > W) {
+                            pos = W - 440
+                        }
+                        return pos.toString()+"px"
+                    }
+                }
+            }
+
+            const getBracketXPosition = (data) => {
+                const dates = data.map((item) => item.date)
+                return {
+                    start: x(normalizeDate(dates[0])) - 10,
+                    end: x(normalizeDate(dates[dates.length-1])) + 10
+                }
+            }
+
+
+            function updateSelectedGame(data) {
+
+                d3.selectAll('.selectedReleaseArea')
+                    .remove()
+                const releaseArea = vis.append('g')
+                releaseArea.append('polygon')
+                    .attr('points', (d) => releaseAreaPoints(data[1]))
+                    .attr('fill' ,'teal')
+                    .style('opacity', 0.5)
+                    .attr('class', 'selectedReleaseArea')
+
+                d3.selectAll('.curlyBracket')
+                    .remove()
+                const bracketX = getBracketXPosition(data[1])
+                const bracket = vis.append('g')                       
+                bracket.append('path')
+                    .attr('class', 'curlyBracket')
+                    .attr("d", (d) => makeCurlyBrace(bracketX.start,255,bracketX.end,255,10,0.6))
+                
+                gameDetails
+                    .html('')
+
+
+                gameDetails
+                    .style('left', getGameDetailsPosition(data[1]))
+                    .style('top', '440px')   
+                    .style('opacity', 1.0)                     
+                    .html(
+                        "<div><h3>"+data[0]+"</h3></div>"+
+                        "<div class='boxart'>"+
+                        boxartImageLink(data[2])+
+                        "</div>"+
+                        "<div class="
+                        
+                    )
+
+                gameDetails.selectAll('.releases')
+                    .data(data[1])
+                    .enter().append('div')
+                        .attr('class', 'releaseDate')
+                        .html((d) =>  
+                            "First "+d.region+" Release: "+d.date.substring(0,10)+
+                            "<br /><span class='gameTitle'>"+d.title+"</span>"
+                        )
+                    
+                d3.selectAll('.selectedGame')
+                    .remove()
+
+                const currentGame = vis.selectAll(".selectedGame")
+                    .data(data[1])
+                    .enter().append("circle")
+                        .attr('class', 'selectedGame')
+                        .attr('cx', (d) => {  return x(normalizeDate(d.date)) })
+                        .attr('cy', (d) => y(d.region))
+                        .attr('r', 8)
+                        .attr('fill', (d) => releaseMarkerColors[d.region])                             
+
+            }
+
+
+            const releaseMarkers = games.selectAll('.releases')
+                .data((d) => d[1])
+                .enter().append('circle')
+                    .attr('cx', (d) => { return x(normalizeDate(d.date)) })
+                    .attr('cy', (d) => y(d.region))
+                    .attr('r', 3)
+                    .attr('fill', (d) => releaseMarkerColors[d.region])
+                    .style('opacity', 0.5)
+                    .on('mouseover', function(i) {
+
+                        const parentNodeData = d3.select(this.parentNode).node().__data__
+                        const data = parentNodeData[1].filter((item) => {
+                            if (item.date != i.date)
+                                return item
+                        })
+                    
+                        const currentGame = vis.selectAll(".currentGame")
+                            .data(data)
+                            .enter().append("circle")
+                                .attr('class', 'currentGame')
+                                .attr('cx', (d) => {  return x(normalizeDate(d.date)) })
+                                .attr('cy', (d) => y(d.region))
+                                .attr('r', 8)
+                                .attr('fill', (d) => releaseMarkerColors[d.region])   
+                                .style('opacity', '0.5')                         
+
+                        d3.select(this)
+                            .transition()
+                            .duration(200)
+                            .attr('r', 8) 
+                            .style('cursor', 'pointer')
+                        tooltip
+                            .transition()
+                            .duration(100)
+                            .style('opacity', 0.9)
+                        tooltip
+                            .html(i.title+"<br />"+i.date.substring(0,10))
+                            .style('left', d3.event.pageX + 10 + 'px')
+                            .style('top', d3.event.pageY - 38 + 'px');                               
+                    })
+                    .on('mouseout', function(i) {
+                        d3.select(this)
+                            .transition()
+                            .duration(200)
+                            .attr('r', 3)      
+                        resetTooltip(tooltip)     
+                        d3.selectAll('.currentGame')
+                            .remove()
+                    })
+                    .on('click', function(i) {
+                        const data = getParentNodeData(this)
+                        
+                        updateSelector(data[0])
+                        updateSelectedGame(data)
+                    })
+
+                //game selector
+
+                function normalizeGameTitle(title) {
+                    return title.replace(/[^\w]/g, '')
+                }
+
+                function updateSelector(gameTitle) {
+                    const select = d3.select('#selectId')
+                    select.node().value = gameTitle
+                }
+
+                const gameTitles = dataset.map((item) => item[0])
+
+                const gameSelector = d3.select('#gameSelectorDiv')
+                    .append('select')
+                        .attr('id', 'selectId')
+                gameSelector.append('option')
+                    .attr('value', 'Select game')
+                    .attr('disabled', true)
+                    .attr('selected', true)
+                    .html('Select game')
+                    
+                
+                gameSelector.selectAll('.selectOption')
+                    .data(gameTitles.sort())
+                    .enter().append('option') 
+                        .attr('id', (d) => "o_"+normalizeGameTitle(d) )
+                        .attr('value', (d) => d)
+                        .html((d) => d)
+                    .on('click', function(i) {
+                        const data = dataset.filter((e) => e[0] === i ? e : null)[0]
+                        updateSelectedGame(data)
+                    })
+
+
+            </script>
+
+    </body>
+</html>

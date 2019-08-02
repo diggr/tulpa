@@ -1,0 +1,10 @@
+setuptools==36.5.0
+Click==7.0
+Jinja2==2.10.1
+numpy==1.16.3
+pandas==0.24.2
+matplotlib==3.0.3
+networkx==2.3
+requests==2.20.0
+provit==1.0.2
+PyYAML==5.1.2
