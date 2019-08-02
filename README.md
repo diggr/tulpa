@@ -1,6 +1,6 @@
 # TULPA
 
-Build research datasets and visualizations from videogame metadata. 
+Build research datasets and visualizations with videogame metadata. 
 
 ## Requirements
 
