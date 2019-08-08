@@ -1,7 +1,16 @@
 import json
+import yaml
 from ..config import get_config
 from ..utils import print_last_prov_entry
 
+
+def build_games_dataset():
+    cf = get_config()
+    with open("import/games.yml") as f:
+        games = yaml.safe_load(f)
+
+    with open(cf.datasets["games"], "w") as f:
+        json.dump(games, f, indent=4)
 
 def check_games_dataset():
     

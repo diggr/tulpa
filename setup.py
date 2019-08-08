@@ -13,7 +13,7 @@ with open(join(base_path, "requirements.txt")) as req_file:
     requirements = req_file.readlines()
 
 setup(
-    name="pyg",
+    name="tulpa",
     description='Tulpa - Generate research datasets from videogame metadata',
     long_description=readme,
     license="GPL-3.0",

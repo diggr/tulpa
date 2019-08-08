@@ -2,6 +2,7 @@ import json
 import requests
 import os
 from provit import Provenance
+from dateutil.parser import parse
 from jinja2 import Environment, FileSystemLoader
 from ..config import get_config, PROVIT_AGENT
 
@@ -42,6 +43,18 @@ class ReleaseTimelineBuilder:
         except:
             return ""    
 
+    def get_date(self, info, region):
+        if not region in info:
+            return None
+
+        release = sorted(info[region], key=lambda x: x["date"])[0]
+        release["region"] = region
+        if release["date"] != "Canceled":
+            if parse(release["date"]):
+                return release
+
+        return None
+
 
     def build_dataset(self):
 
@@ -51,30 +64,22 @@ class ReleaseTimelineBuilder:
             releases = []
             
             cover = self.getCover(title)
-            try:
-                release = sorted(info["JP"], key=lambda x: x["date"])[0]
-                release["region"] = 'JP'
-                releases.append(release)
-                self.years.add(int(release["date"][:4]))
-            except:
-                print("no JP release for ", title)
-                
-            try:
-                release = sorted(info["US"], key=lambda x: x["date"])[0]
-                release["region"] = 'US'     
-                if release["date"] != 'Canceled':
-                    releases.append(release)
-                    self.years.add(int(release["date"][:4]))
-            except:
-                print("no US release for ", title)
 
-            try:
-                release = sorted(info["EU"], key=lambda x: x["date"])[0]
-                release["region"] = 'EU'        
+            release = self.get_date(info, "JP")
+            if release:
                 releases.append(release)
                 self.years.add(int(release["date"][:4]))
-            except:
-                print("no EU release for ", title)
+            
+            release = self.get_date(info, "US")
+            if release:
+                releases.append(release)
+                self.years.add(int(release["date"][:4]))
+
+            release = self.get_date(info, "EU")
+            if release:
+                releases.append(release)
+                self.years.add(int(release["date"][:4]))
+
                 
             self.dataset.append([title, releases, cover])        
 

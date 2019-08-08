@@ -1,7 +1,8 @@
 from pathlib import Path
 from .config import get_config, init_config
-from .datasets.games_dataset import check_games_dataset
+from .datasets.games_dataset import check_games_dataset, build_games_dataset
 from .datasets.releases_dataset import ReleasesDatasetBuilder
+from .datasets.import_dataset import build_import_dataset
 from .visualizations.credits_network import CreditsNetwork
 from .visualizations.release_timeline import ReleaseTimelineBuilder
 from .visualizations.staff_heatmap import StaffHeatmap
@@ -57,5 +58,13 @@ def build_dataset(dataset, force):
         else:
             print("building dataset ...")            
             ReleasesDatasetBuilder()
+
+    elif dataset == "import":
+        if force:
+            build_import_dataset()
+
+    elif dataset == "games":
+        build_games_dataset()
+
     else:
         print("Unknown dataset!")        

@@ -22,6 +22,7 @@ class Config:
         
         datasets_dir = Path("datasets")
         visualizations_dir = Path("visualizations")
+        import_dir = Path('import')
 
         self.dirs = {
             "datasets": datasets_dir,
