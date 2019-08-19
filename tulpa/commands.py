@@ -36,13 +36,13 @@ def initialize_project():
 
 def build_visualization(visualization, title, n, out_format):
 
-    if visualization == "credits_network":
+    if visualization == "credits-network":
         print("building network ...")
         CreditsNetwork()
-    elif visualization == "release_timeline":
+    elif visualization == "release-timeline":
         print("building timeline ...")
         ReleaseTimelineBuilder(title)
-    elif visualization == "staff_heatmap":
+    elif visualization == "staff-heatmap":
         print("building heatmap ...")
         StaffHeatmap(n, out_format)
     else:
