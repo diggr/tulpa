@@ -7,6 +7,11 @@ from .visualizations.credits_network import CreditsNetwork
 from .visualizations.release_timeline import ReleaseTimelineBuilder
 from .visualizations.staff_heatmap import StaffHeatmap
 from .utils import print_last_prov_entry
+from .gamelist import GamelistGenerator
+
+
+def build_gamelist(query, company):
+    gg = GamelistGenerator(query, company)
 
 def show_datasets():
     cf = get_config()

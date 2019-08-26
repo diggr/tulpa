@@ -6,7 +6,7 @@ from ..utils import print_last_prov_entry
 
 def build_games_dataset():
     cf = get_config()
-    with open("import/games.yml") as f:
+    with open(cf.gamelist_file) as f:
         games = yaml.safe_load(f)
 
     with open(cf.datasets["games"], "w") as f:
@@ -50,7 +50,6 @@ def check_games_dataset():
             if len(links["gamefaqs"]) == 0:
                 no_ids["gamefaqs"].append(game_title)                                
         
-    
     print("\t ... without Media Art DB entry: {}".format(len(no_ids["mediaartdb"])))
     for title in no_ids["mediaartdb"]:
         print("\t\t - {}".format(title))
@@ -60,6 +59,5 @@ def check_games_dataset():
     print("\t ... without GameFAQs entry: {}".format(len(no_ids["gamefaqs"])))
     for title in no_ids["gamefaqs"]:
         print("\t\t - {}".format(title))        
-
 
     print_last_prov_entry(dataset_file)

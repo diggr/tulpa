@@ -12,5 +12,5 @@ def build_import_dataset():
     with open(dataset_file) as f:
         games = json.load(f)
 
-    with open("import/games.yml", "w") as f:
+    with open(cf.gamelist_file, "w") as f:
         yaml.dump(games, f, default_flow_style=False)

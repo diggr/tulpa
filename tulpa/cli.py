@@ -22,6 +22,13 @@ def check(dataset):
 def build():
     pass
 
+
+@build.command()
+@click.option("--query", "-q", default=None)
+@click.option("--company","-c", default=None)
+def gamelist(query, company):
+    tp.build_gamelist(query, company)
+
 @build.command()
 @click.argument("visualization")
 @click.option("--title", "-t", default="Release Timeline")

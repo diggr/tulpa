@@ -28,6 +28,7 @@ class Config:
             "datasets": datasets_dir,
             "visualizations": visualizations_dir,
             "games_dataset": datasets_dir / "games",
+            "companies_dataset": datasets_dir / "companies",
             "releases_dataset": datasets_dir / "releases",
             "credits_network": visualizations_dir / "credits_network",
             "release_timeline": visualizations_dir / "release_timeline",
@@ -36,12 +37,14 @@ class Config:
 
         self.datasets = {
             "games": self.dirs["games_dataset"] / "{}_games.json".format(cf["project_name"]),
+            "companies": self.dirs["companies_dataset"] / "{}_companies.json".format(cf["project_name"]),
             "releases": self.dirs["releases_dataset"] / "{}_releases.json".format(cf["project_name"])
         }
 
         
         self.project_name = cf["project_name"]
         self.daft = cf["daft"]
+        self.gamelist_file = "{}.yml".format(self.project_name)
 
 def get_config():
     if Path(CONFIG_FILE).exists():
