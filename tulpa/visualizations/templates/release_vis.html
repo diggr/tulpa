@@ -286,54 +286,65 @@
                 .style('opacity', '0.3')
 
 
-            const games = vis.selectAll('.games')
-                .data(dataset)
-                .enter().append('g')
+            function  releaseArea2(r1, r2) {
+                let points = [
+                    [x(normalizeDate(r1.date)), y(r1.region)],
+                    [x(normalizeDate(r2.date)), y(r2.region)],
+                    [x(normalizeDate(r1.date)), y(r2.region)]
+                ]
+                points = points.map((d) => d.join(',')).join(' ')    
+                return points             
+            }
 
+            function releaseArea3(rList) {
+                const [ r1, r2, r3 ] = rList
+                let points = [
+                    [x(normalizeDate(r1.date)), y(r1.region)],
+                    [x(normalizeDate(r2.date))+1, y(r2.region)],
+                    [x(normalizeDate(r1.date))+1, y(r2.region)],
+                    [x(normalizeDate(r1.date)), y(r1.region)],
+                    [x(normalizeDate(r3.date))+1, y(r3.region)],
+                    [x(normalizeDate(r1.date))+1, y(r3.region)]
+                ]     
+                points = points.map((d) => d.join(',')).join(' ')         
+                return points         
+            }
 
             function releaseAreaPoints(releases) {
-                //console.log(releases)
-
                 let points = ""
-                if (releases.length===1)
-                    return ""
-                else if (releases.length === 2) {
-                    jpRelease = releases.filter((d) => d.region === 'JP' ? d : null)[0]
-                    if (jpRelease) {
-                    otherRelease = releases.filter((d) => d.region !== 'JP' ? d : null)[0]
-                    points = [
-                        [x(normalizeDate(jpRelease.date)), y(jpRelease.region)],
-                        [x(normalizeDate(otherRelease.date)), y(otherRelease.region)],
-                        [x(normalizeDate(jpRelease.date)), y(otherRelease.region)]
-                    ]
-                    points = points.map((d) => d.join(',')).join(' ') }
+                jp = releases.filter((d) => d.region === 'JP' ? d : null)[0]
+                eu = releases.filter((d) => d.region === 'EU' ? d : null)[0]
+                us = releases.filter((d) => d.region === 'US' ? d : null)[0]                
+                if (releases.length === 2) {
+                    if (!jp) 
+                        points = releaseArea2(eu, us)
+                    else if (!eu)
+                        points = releaseArea2(jp, us)
+                    else if (!us) 
+                        points = releaseArea2(jp, eu)                  
                 }
                 else if (releases.length === 3) {
                     jp = releases.filter((d) => d.region === 'JP' ? d : null)[0]
                     eu = releases.filter((d) => d.region === 'EU' ? d : null)[0]
                     us = releases.filter((d) => d.region === 'US' ? d : null)[0]
-                    points = [
-                        [x(normalizeDate(jp.date)), y(jp.region)],
-                        [x(normalizeDate(eu.date))+1, y(eu.region)],
-                        [x(normalizeDate(jp.date))+1, y(eu.region)],
-                        [x(normalizeDate(jp.date)), y(jp.region)],
-                        [x(normalizeDate(us.date))+1, y(us.region)],
-                        [x(normalizeDate(jp.date))+1, y(us.region)]
-                    ]     
-                    points = points.map((d) => d.join(',')).join(' ')             
+                    console.log([jp, eu, us])
+                    console.log([jp, eu, us].sort())
+                    points =releaseArea3([jp, eu, us].sort((item, other) => item.date > other.date ? 1 : 0))             
                 }
                 return points
             }
 
 
-            const areas = vis.selectAll('.release_area')//.append('g')
+            const areas = vis.selectAll('.release_area')
                 .data(dataset).enter().append('g')
-
-            areas.append('polygon')
+                .append('polygon')
                     .attr('points', (d) => releaseAreaPoints(d[1]))
                     .attr('fill' ,'teal')
                     .style('opacity', 0.05)
 
+            const games = vis.selectAll('.games')
+                .data(dataset)
+                .enter().append('g')
 
             const boxartImageLink = (url) => {
                 if (url !== "")
