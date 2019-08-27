@@ -354,20 +354,19 @@
             }
 
             const getGameDetailsPosition = (data) => {
-                for (const release of data) {
-                    if (release.region === 'JP')
-                    {
-                        let pos = Math.round(x(normalizeDate(release.date))) - 15
-                        if ((pos+400) > W) {
-                            pos = W - 440
-                        }
-                        return pos.toString()+"px"
-                    }
+                let dates = data.map((item) => item.date)
+                dates = dates.sort()
+
+                let pos = Math.round(x(normalizeDate(dates[0]))) - 15
+                if ((pos+400) > W) {
+                    pos = W - 440
                 }
+                return pos.toString()+"px"
             }
 
             const getBracketXPosition = (data) => {
-                const dates = data.map((item) => item.date)
+                let dates = data.map((item) => item.date)
+                dates = dates.sort()
                 return {
                     start: x(normalizeDate(dates[0])) - 10,
                     end: x(normalizeDate(dates[dates.length-1])) + 10
