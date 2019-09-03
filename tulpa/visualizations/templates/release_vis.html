@@ -285,12 +285,18 @@
                 .attr('fill', (d) => releaseMarkerColors[d])
                 .style('opacity', '0.3')
 
+            
 
             function  releaseArea2(r1, r2) {
                 let points = [
+                    //[x(normalizeDate(r1.date)), y(r1.region)],
+                    //[x(normalizeDate(r2.date)), y(r2.region)],
+                    //[x(normalizeDate(r1.date)), y(r2.region)]
                     [x(normalizeDate(r1.date)), y(r1.region)],
                     [x(normalizeDate(r2.date)), y(r2.region)],
-                    [x(normalizeDate(r1.date)), y(r2.region)]
+                    [x(normalizeDate(r2.date))+4, y(r2.region)],
+                    [x(normalizeDate(r1.date))+4, y(r1.region)],
+
                 ]
                 points = points.map((d) => d.join(',')).join(' ')    
                 return points             
@@ -299,12 +305,15 @@
             function releaseArea3(rList) {
                 const [ r1, r2, r3 ] = rList
                 let points = [
+                    //[x(normalizeDate(r1.date)), y(r1.region)],
+                    //[x(normalizeDate(r2.date))+1, y(r2.region)],
+                    //[x(normalizeDate(r1.date))+1, y(r2.region)],
+                    //[x(normalizeDate(r1.date)), y(r1.region)],
+                    //[x(normalizeDate(r3.date))+1, y(r3.region)],
+                    //[x(normalizeDate(r1.date))+1, y(r3.region)]
                     [x(normalizeDate(r1.date)), y(r1.region)],
-                    [x(normalizeDate(r2.date))+1, y(r2.region)],
-                    [x(normalizeDate(r1.date))+1, y(r2.region)],
-                    [x(normalizeDate(r1.date)), y(r1.region)],
-                    [x(normalizeDate(r3.date))+1, y(r3.region)],
-                    [x(normalizeDate(r1.date))+1, y(r3.region)]
+                    [x(normalizeDate(r2.date)), y(r2.region)],
+                    [x(normalizeDate(r3.date)), y(r3.region)],
                 ]     
                 points = points.map((d) => d.join(',')).join(' ')         
                 return points         
@@ -333,7 +342,7 @@
                 }
                 return points
             }
-
+            
 
             const areas = vis.selectAll('.release_area')
                 .data(dataset).enter().append('g')
