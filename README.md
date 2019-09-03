@@ -67,8 +67,9 @@ You can automatically generate a list with the `tulpa build gamelist` command
 $ tulpa build gamelist -q 'Zelda'
 ```
 
-Options:
 
+| Option |  |
+| -- | -- |
 | -q | Include all games with this term in the title |
 | -c | Include all games where this company was part of the production |
 
