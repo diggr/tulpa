@@ -38,14 +38,45 @@ project_name: FromSoftware
 
 Enter the daft/unified api url and choose a project name.
 
-4. Build a games dataset
+4. Build gamelist
 
-This datasets contains all games in the project. It is mandatory to create a games dataset first in order to be able to build the other datasets and visualizaitons!
+This creates a yml file contianing all games in the project. It is mandatory to create this list first in order to be able to build the other datasets and visualizaitons!
 
 Each game entry has a name and links to the following metadata ressources:
 * Mobygames: List of slugs (e.g. `dark-souls`)
 * GameFAQs: List of slugs (e.g. `ps3/606312-dark-souls`)
 * Media Art DB: List of IDs (GPIr, e.g.`0392133400819`)
+
+E.g.
+
+```yaml
+The Legend of Zelda:
+  gamefaqs:
+  - nes/563433-the-legend-of-zelda
+  mediaartdb:
+  - '392100100105'
+  - '392134100837'
+  - '392144600139'
+  mobygames:
+  - legend-of-zelda
+```
+
+You can automatically generate a list with the `tulpa build gamelist` command
+
+```zsh
+$ tulpa build gamelist -q 'Zelda'
+```
+
+Options:
+
+| -q | Include all games with this term in the title |
+| -c | Include all games where this company was part of the production |
+
+
+
+4. Build a games dataset
+
+Simply transfrom the yml file into a json file.
 
 Example:
 
@@ -67,12 +98,12 @@ Example:
 }
 ```
 
-The games dataset needs to be located in the `datasets/games` directory and use the following filename template:
+The games dataset will be stored in the `datasets/games` directory and uses the following filename template:
 `<project_name>_games.json`.
 
 With the games dataset you can now create the other datasets and visualizations.
 
-You can check if the dataset is in the correct format using the following command:
+You can check which games are missing in each data source using the following command:
 
 ```zsh
 $ tulpa check games
