@@ -31,6 +31,8 @@ class GamelistGenerator():
             data = rsp.json()
             url = data["entry"]["raw"]["moby_url"]
             return url.split("/")[-1]
+        elif dataset_name = "gamefaqs":
+            return id_.replace("__","/")
         else:
             return id_
 
