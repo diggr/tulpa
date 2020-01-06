@@ -1,16 +1,21 @@
 import json
 import yaml
+import os
 from ..config import get_config
 from ..utils import print_last_prov_entry
 
 
-def build_games_dataset():
+def generate_games_dataset():
     cf = get_config()
     with open(cf.gamelist_file) as f:
         games = yaml.safe_load(f)
 
     with open(cf.datasets["games"], "w") as f:
         json.dump(games, f, indent=4)
+
+    print("completed \n")
+    print("File location: {}".format(cf.datasets["games"]))
+
 
 def check_games_dataset():
     

@@ -96,7 +96,7 @@ class StaffHeatmap:
         dataset = df.loc[df.index.isin(topn)].fillna(0)
 
         #create plot
-        fig, ax = plt.subplots(figsize=(len(self.games)/1.5,self._n / 3))
+        fig, ax = plt.subplots(figsize=(len(self.games)/3,self._n / 3))
         c = plt.pcolor(dataset, cmap='hot')
         plt.title(self.plot_title, y=1.03)
         plt.yticks(np.arange(0.5, len(dataset.index), 1), dataset.index)

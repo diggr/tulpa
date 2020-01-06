@@ -1,3 +1,19 @@
+"""
+Tulpa command line interface
+
+Command structure:
+
+tulpa   gamelist    build
+                    update
+        dataset     games
+                    releases
+                    companies
+        vis         release-timeline
+                    staff-heatmap
+                    credits-network
+                    company-network
+"""
+
 import click
 import tulpa as tp
 
@@ -13,33 +29,68 @@ def init():
 def datasets():
     tp.show_datasets()
 
-@cli.command()
-@click.argument("dataset")
-def check(dataset):
-    tp.check_dataset(dataset)
+
+#
+# gamelist commands
+#
 
 @cli.group()
-def build():
+def gamelist():
     pass
 
-
-@build.command()
+@gamelist.command()
 @click.option("--query", "-q", default=None)
 @click.option("--company","-c", default=None)
-def gamelist(query, company):
+def build(query, company):
     tp.build_gamelist(query, company)
 
-@build.command()
-@click.argument("visualization")
+@gamelist.command()
+@click.option('--force/--no-force', default=False)
+def update(force):
+    pass
+
+#
+# dataset commands
+#
+
+@cli.group()
+def dataset():
+    pass
+
+@dataset.command()
+@click.option('--force/--no-force', default=False)
+def games(force):
+    tp.build_games_dataset(force)
+
+@dataset.command()
+@click.option('--force/--no-force', default=False)
+def releases(force):
+    tp.build_release_dataset(force)
+
+@dataset.command()
+@click.option('--force/--no-force', default=False)
+def companies(force):
+    pass
+
+#
+# vis commands
+#
+
+@cli.group()
+def vis():
+    pass
+
+@vis.command()
 @click.option("--title", "-t", default="Release Timeline")
+def release_timeline(title):
+    tp.build_release_timeline(title)
+
+@vis.command()
 @click.option("-n", default=30)
 @click.option("--output_format", "-o", default="png" )
-def vis(visualization, title, n, output_format):
-    tp.build_visualization(visualization, title, n, output_format)
+def staff_heatmap(n, output_format):
+    tp.build_staff_heatmap(n, output_format)
 
-
-@build.command()
-@click.argument("dataset")
-@click.option('--force/--no-force', default=False)
-def dataset(dataset, force):
-    tp.build_dataset(dataset, force)    
+@vis.command()
+def credits_network():
+    tp.build_credits_network()

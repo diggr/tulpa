@@ -1,6 +1,6 @@
 from pathlib import Path
 from .config import get_config, init_config
-from .datasets.games_dataset import check_games_dataset, build_games_dataset
+from .datasets.games_dataset import check_games_dataset, generate_games_dataset
 from .datasets.releases_dataset import ReleasesDatasetBuilder
 from .datasets.import_dataset import build_import_dataset
 from .visualizations.credits_network import CreditsNetwork
@@ -22,13 +22,7 @@ def show_datasets():
             print("\t- [{}] {}".format(name, dataset))
 
             print_last_prov_entry(dataset)
-                    
-def check_dataset(dataset):
 
-    if dataset == "games":
-        check_games_dataset()
-    else:
-        print("Dataset not available!")
 
 def initialize_project():  
     print("initialize tulpa project")
@@ -39,37 +33,38 @@ def initialize_project():
         if not Path(directory).exists():
             Path(directory).mkdir()
 
-def build_visualization(visualization, title, n, out_format):
 
-    if visualization == "credits-network":
-        print("building network ...")
-        CreditsNetwork()
-    elif visualization == "release-timeline":
-        print("building timeline ...")
-        ReleaseTimelineBuilder(title)
-    elif visualization == "staff-heatmap":
-        print("building heatmap ...")
-        StaffHeatmap(n, out_format)
+def build_release_timeline(title):
+    print("building timeline ...")
+    ReleaseTimelineBuilder(title)    
+
+
+def build_staff_heatmap(n, out_format):
+    print("building heatmap ...")
+    StaffHeatmap(n, out_format)
+
+def build_credits_network():
+    print("building network ...")
+    CreditsNetwork()
+
+"""                    
+def check_dataset(dataset):
+
+    if dataset == "games":
+        check_games_dataset()
     else:
-        print("Unknown visualization!")
+        print("Dataset not available!")   
+"""
 
+def build_games_dataset(force):
+    print("building dataset ...")
+    generate_games_dataset()
 
-def build_dataset(dataset, force):
+def build_release_dataset(force):
     cf = get_config()
-    if dataset == "releases":
 
-        if Path(cf.datasets["releases"]).exists() and not force:
-            print("Dataset already exists. Use '--force' option to rebuild the dataset.")
-        else:
-            print("building dataset ...")            
-            ReleasesDatasetBuilder()
-
-    elif dataset == "import":
-        if force:
-            build_import_dataset()
-
-    elif dataset == "games":
-        build_games_dataset()
-
+    if Path(cf.datasets["releases"]).exists() and not force:
+        print("Dataset already exists. Use '--force' option to rebuild the dataset.")
     else:
-        print("Unknown dataset!")        
+        print("building dataset ...")            
+        ReleasesDatasetBuilder()    
