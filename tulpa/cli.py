@@ -70,7 +70,7 @@ def releases(force):
 @dataset.command()
 @click.option('--force/--no-force', default=False)
 def companies(force):
-    pass
+    tp.CompanyDatasetBuilder()
 
 #
 # vis commands

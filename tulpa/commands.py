@@ -1,6 +1,7 @@
 from pathlib import Path
 from .config import get_config, init_config
 from .datasets.games_dataset import check_games_dataset, generate_games_dataset
+from .datasets.company_dataset import CompanyDatasetBuilder
 from .datasets.releases_dataset import ReleasesDatasetBuilder
 from .datasets.import_dataset import build_import_dataset
 from .visualizations.credits_network import CreditsNetwork
@@ -9,6 +10,9 @@ from .visualizations.staff_heatmap import StaffHeatmap
 from .utils import print_last_prov_entry
 from .gamelist import GamelistGenerator
 
+
+def build_company_dataset():
+    cdb = CompanyDatasetBuilder()
 
 def build_gamelist(query, company):
     gg = GamelistGenerator(query, company)
