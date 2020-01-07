@@ -1,14 +1,30 @@
 import json
 import yaml
 import os
+import requests
 from ..config import get_config
 from ..utils import print_last_prov_entry
 
+
+def get_company_id(slug):
+    cf = get_config()
+    url = cf.daft + "/mobygames/slug/{slug}"
+
+    rsp = requests.get(url.format(slug=slug))
+    data = rsp.json()
+    return data["entry"]["id"]
 
 def generate_games_dataset():
     cf = get_config()
     with open(cf.gamelist_file) as f:
         games = yaml.safe_load(f)
+
+    for title, links in games.items():
+        mg_ids = []
+        for mg_slug in links["mobygames"]:
+            mg_ids.append(get_company_id(mg_slug))
+
+        links["mobygames_ids"] = mg_ids
 
     with open(cf.datasets["games"], "w") as f:
         json.dump(games, f, indent=4)
