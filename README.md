@@ -13,45 +13,66 @@ to build, visualize and inspect company networks.
 
 ## Setup
 
-1. Clone repository
-
-2. Install with pip (in a new python environment)
+Clone repository and install the package.
 
 ```zsh
-$ pip install .
+$ git clone https://git.sc.uni-leipzig.de/ubl/diggr/general/tulpa
+$ pip install ./tulpa
 ```
 
-## Usage
+## Dataset Creation
 
-1. Create a new project directory
+This chapter is a short introduction into the arguments, configuration files
+and possible use cases for tulpa.
 
-2. In the project directory initialize project
+### Project directory
+
+*tulpa* requires project directory to run on. If you don't have one, create 
+a new directory on your filesystem and run the `init` command from within.
 
 ```zsh
-$ tulpa init
+$ mkdir new_project
+$ cd new_project && tulpa init
 ```
 
-This command generates a `config.yml` file as well as the directories for the datasets and visualizations.
+This command generates a `config.yml` file as well as the directories for the 
+datasets and visualizations. Feel free to customize the `config.yml` to your
+needs.
 
-3. Config `config.yml`
+### Configuration file  `config.yml`
+
+*tulpa* requires access to the [unified api](https://git.sc.uni-leipzig.de/ubl/diggr/infrastructure/unifiedapi),
+the correct address needs to be specified in the `config.yml` along with the 
+project name.
 
 ```yaml
 daft: 'http://127.0.0.1:6660'
 project_name: FromSoftware
 ```
 
-Enter the daft/unified api url and choose a project name.
+### Build a gamelist
 
-4. Build gamelist
+The following command creates a yaml file contianing all games in the project. 
+It is mandatory to create this list first in order to be able to build the other 
+datasets and visualizations.
 
-This creates a yml file contianing all games in the project. It is mandatory to create this list first in order to be able to build the other datasets and visualizaitons!
+```zsh
+$ tulpa gamelist build -q "final fantasy"
+```
+> Note: It is mandatory to supply this command with either the -c or the -q option. 
 
-Each game entry has a name and links to the following metadata ressources:
+Options:
+
+* `-q`  Include all games with this term in the title
+* `-c` Include all games where this company was part of the production
+
+The resulting yaml file has a name and links for each game entry. The following
+metadata ressources are used:
 * Mobygames: List of slugs (e.g. `dark-souls`)
 * GameFAQs: List of slugs (e.g. `ps3/606312-dark-souls`)
 * Media Art DB: List of IDs (GPIr, e.g.`0392133400819`)
 
-E.g.
+The resulting file might look like this (obviously for a search related to *Zelda*):
 
 ```yaml
 The Legend of Zelda:
@@ -65,25 +86,19 @@ The Legend of Zelda:
   - legend-of-zelda
 ```
 
-You can automatically generate a list with the `tulpa build gamelist` command
+### Build a games dataset
+
+The previously generated yaml file can now be converted into a json file using
+the following command. 
 
 ```zsh
-$ tulpa build gamelist -q 'Zelda'
+$ tulpa dataset games
 ```
 
+> Note: This command command also fetches the internal mobygames id for each
+mobygames slug and stores it into the json file.
 
-| Option |  |
-| -- | -- |
-| -q | Include all games with this term in the title |
-| -c | Include all games where this company was part of the production |
-
-
-
-4. Build a games dataset
-
-Simply transfrom the yml file into a json file.
-
-Example:
+The result might look like so:
 
 ```json
 {
@@ -103,33 +118,30 @@ Example:
 }
 ```
 
-The games dataset will be stored in the `datasets/games` directory and uses the following filename template:
-`<project_name>_games.json`.
+The games dataset will be stored in the `datasets/games` directory and uses the 
+following filename template: `<project_name>_games.json`.
 
-With the games dataset you can now create the other datasets and visualizations.
+With this games dataset you can now create the other datasets and visualizations.
 
-You can check which games are missing in each data source using the following command:
-
-```zsh
-$ tulpa check games
-```
-
-4. Build release dataset
+### Build release dataset
 
 ```zsh
 $ tulpa build dataset releases
 ```
 
-Generates a dataset containing the releases of the games in various regions (based on GameFAQs data).
+Generates a dataset containing the releases of the games in various regions 
+(based on GameFAQs data).
 
-5. Build visualizations
+## Visualizations
 
 With the datasets created, you can now build visualizations.
 
-5.1 Staff Heatmap
+### Staff Heatmap
 
-A heatmap that visualizes which staff member worked on what game. It chooses the n most active (worked on the highest number of games) staff members.
-The color indicates the number of roles the person held during the game's production. The heatmap will be saved either as a png or a pdf file.
+A heatmap that visualizes which staff member worked on what game. It chooses the 
+n most active (worked on the highest number of games) staff members. The color 
+indicates the number of roles the person held during the game's production. 
+The heatmap will be saved either as a png image or a pdf file.
 
 ```zsh
 $ tulpa build vis staff_heatmap
@@ -140,21 +152,25 @@ Options:
 * `-o`  Output format, either `pdf` or `png`
 * `-n`  Number of persons considered in the visualizations
 
-5.2 Credits Network
+### Credits Network
 
-A network graph showing how mucht the development staff of the games overlap. The command generates a `graphml` file which can be loaded into Gephi.
-The similarity between two games is calculated by: |union(GameA, GameB)| / min(|GameA|, |GameB|)
+A network graph showing how mucht the development staff of the games overlap. 
+The command generates a `graphml` file which can be loaded into Gephi.
+The similarity between two games is calculated by: 
+|union(GameA, GameB)| / min(|GameA|, |GameB|)
 
 ```zsh
-$ tulpa build vis credits_network
+$ tulpa vis credits-network
 ```
 
-5.3 Release Timeline
+### Release Timeline
 
-Builds an interactive Timeline showing the games' releases in the various regions. The temporal distance between the releases is represented by the colored area between the releases. The visualization will be saved as a html file.
+Builds an interactive Timeline showing the games' releases in the various regions. 
+The temporal distance between the releases is represented by the colored area 
+between the releases. The visualization will be saved as a html file.
 
 ```zsh
-$ tulpa build vis release_timeline
+$ tulpa vis release-timeline
 ```
 
 ## Copyright
