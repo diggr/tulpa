@@ -1,11 +1,15 @@
 # TULPA
 
-Build research datasets and visualizations with videogame metadata. 
+Build visualizations and analysis for a list of video games (with 
+their identifiers in various databases). The list can be created with tulpa,
+by giving the *build* command a query for a game or a company. These lists can 
+also be used in [lemongrab](https://git.sc.uni-leipzig.de/ubl/diggr/general/lemongrab)
+to build, visualize and inspect company networks.
 
 ## Requirements
 
 * Python 3.7
-* unified videogame metadata api (https://git.sc.uni-leipzig.de/ubl/diggr/infrastructure/unifiedapi)
+* [unified api](https://git.sc.uni-leipzig.de/ubl/diggr/infrastructure/unifiedapi)
 
 ## Setup
 
