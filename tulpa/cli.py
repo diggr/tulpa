@@ -12,6 +12,7 @@ tulpa   gamelist    build
                     staff-heatmap
                     credits-network
                     company-network
+
 """
 
 import click
@@ -47,7 +48,7 @@ def build(query, company):
 @gamelist.command()
 @click.option('--force/--no-force', default=False)
 def update(force):
-    pass
+    tp.update_gamelist(force)
 
 #
 # dataset commands
@@ -94,3 +95,7 @@ def staff_heatmap(n, output_format):
 @vis.command()
 def credits_network():
     tp.build_credits_network()
+
+@vis.command()
+def staff_size():
+    tp.build_staff_size_chart()
