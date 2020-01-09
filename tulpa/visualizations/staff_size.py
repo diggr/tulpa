@@ -53,18 +53,18 @@ class StaffSizeChart:
 
         sorted_dataset = sorted(dataset, key=lambda x: x[0])
 
-        labels = [ x[0] for x in sorted_dataset ]
+        labels = [ x[0] for x in sorted_dataset if x[1] > 0 ]
         y_pos = np.arange(len(labels))
-        values = [ x[1] for x in sorted_dataset ]
+        values = [ x[1] for x in sorted_dataset  if x[1] > 0 ]
 
-        fig, ax = plt.subplots(figsize=(len(self.games)/3,12))
+        fig, ax = plt.subplots(figsize=(len(labels)/1,12))
 
         plt.bar(y_pos, values, align='center', alpha=0.5)
         plt.xticks(y_pos, labels)
         plt.ylabel('Staff size')
         plt.title(self.title)
         plt.setp( ax.xaxis.get_majorticklabels(), rotation=-45, ha="left" )
-        plt.gcf().subplots_adjust(bottom=0.25)
+        plt.gcf().subplots_adjust(bottom=0.3 )
 
 
         plt.show()
