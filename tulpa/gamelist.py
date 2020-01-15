@@ -91,7 +91,7 @@ class GamelistGenerator():
         ds = sorted(ds, key=lambda x: x["title"])
 
         final_ds = { x["title"]: x["links"] for x in ds }
-        with open(self.cf.gamelist_file, "w") as f:
+        with open(self.gamelist_filename, "w") as f:
             yaml.dump(final_ds, f, default_flow_style=False)
 
     def __init__(self, query, company, daft_url, gamelist_filename, mobygames=MOBYGAMES):
