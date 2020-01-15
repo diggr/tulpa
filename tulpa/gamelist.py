@@ -5,6 +5,10 @@ from tqdm import tqdm
 
 class GamelistGenerator():
 
+    def len_mobygames_entries(self):
+        rsp = requests.get(self.cf.daft+"/mobygames")
+        return len(rsp.json()["ids"])
+
     def mobygames_entries(self):
 
         rsp = requests.get(self.cf.daft+"/mobygames")
@@ -93,7 +97,7 @@ class GamelistGenerator():
 
         mg = []
         print("searching in mobygames dataset ...")
-        for entry in tqdm(self.mobygames_entries()):
+        for entry in tqdm(self.mobygames_entries(), total=self.len_mobygames_entries()):
             added = False
             if query:
                 for title in self.iter_titles(entry):
@@ -102,7 +106,7 @@ class GamelistGenerator():
                             "title": entry["title"],
                             "id": entry["id"]
                         })
-                        print("\n- "+entry["title"])
+                        tqdm.write("- "+entry["title"])
                         added = True
                         
                         break
@@ -114,7 +118,7 @@ class GamelistGenerator():
                                 "title": entry["title"],
                                 "id": entry["id"]                            
                             })
-                            print("\n- "+entry["title"])                            
+                            tqdm.write("- "+entry["title"])                            
                             break
 
         self.build_gamelist(mg)
