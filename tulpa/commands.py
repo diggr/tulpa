@@ -16,7 +16,8 @@ def build_company_dataset():
     cdb = CompanyDatasetBuilder()
 
 def build_gamelist(query, company):
-    gg = GamelistGenerator(query, company)
+    cfg = get_config()
+    gg = GamelistGenerator(query, company, cfg.daft, cfg.gamelist_file)
 
 def show_datasets():
     cf = get_config()
