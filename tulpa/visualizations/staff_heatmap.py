@@ -3,6 +3,8 @@ import sys
 import pandas as pd
 import requests
 import numpy as np
+import matplotlib
+matplotlib.use('TkAgg')  
 import matplotlib.pyplot as plt
 from provit import Provenance
 from collections import defaultdict, Counter

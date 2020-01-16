@@ -73,7 +73,10 @@ class ReleaseTimelineBuilder:
             release = self.get_date(info, "US")
             if release:
                 releases.append(release)
-                self.years.add(int(release["date"][:4]))
+                try:
+                    self.years.add(int(release["date"][:4]))
+                except:
+                    print("invalid date format {}".format(release["date"]))
 
             release = self.get_date(info, "EU")
             if release:
