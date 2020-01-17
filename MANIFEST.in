@@ -1,0 +1,7 @@
+
+include LICENSE
+
+include tulpa/visualizations/templates/*.html
+
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]

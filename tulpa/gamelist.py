@@ -12,7 +12,11 @@ class GamelistGenerator():
         for mg_id in ids:
             rsp = requests.get(self.cf.daft+"/mobygames/{}".format(mg_id))
             data = rsp.json()
-            yield data["entry"]
+            try:
+                yield data["entry"]
+            except:
+                print(data)
+                raise
 
     def iter_titles(self, entry):
         yield entry["title"]
