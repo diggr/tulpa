@@ -8,6 +8,7 @@ from .visualizations.credits_network import CreditsNetwork
 from .visualizations.release_timeline import ReleaseTimelineBuilder
 from .visualizations.staff_heatmap import StaffHeatmap
 from .visualizations.staff_size import StaffSizeChart
+from .visualizations.games_data_table import GamesDataTableBuilder
 from .utils import print_last_prov_entry
 from .gamelist import GamelistGenerator
 
@@ -81,3 +82,7 @@ def build_release_dataset(force):
 def update_gamelist(force):
     print("update gamelist ...")
     build_import_dataset()
+
+def build_games_data_table():
+    print("Bulding games data table ...")
+    gdt = GamesDataTableBuilder()

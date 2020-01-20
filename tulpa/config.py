@@ -7,7 +7,8 @@ CONFIG_FILE = "config.yml"
 
 CONFIG_TEMPLATE = {
     "project_name": "tulpa",
-    "daft": ""
+    "daft": "",
+    "lemongrab_dir": ""
 }
 
 def init_config():
@@ -32,7 +33,8 @@ class Config:
             "releases_dataset": datasets_dir / "releases",
             "credits_network": visualizations_dir / "credits_network",
             "release_timeline": visualizations_dir / "release_timeline",
-            "staff_heatmap": visualizations_dir / "staff_heatmap"
+            "staff_heatmap": visualizations_dir / "staff_heatmap",
+            "games_data_table": visualizations_dir / "games_data_table"
         }
 
         self.datasets = {
@@ -44,6 +46,7 @@ class Config:
         
         self.project_name = cf["project_name"]
         self.daft = cf["daft"]
+        self.lemongrab = cf["lemongrab_dir"]
         self.gamelist_file = "{}.yml".format(self.project_name)
 
 def get_config():
