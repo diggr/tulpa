@@ -11,6 +11,7 @@ from .visualizations.staff_size import StaffSizeChart
 from .visualizations.games_data_table import GamesDataTableBuilder
 from .utils import print_last_prov_entry
 from .gamelist import GamelistGenerator
+from .config import get_config
 
 
 def build_company_dataset():
@@ -85,4 +86,8 @@ def update_gamelist(force):
 
 def build_games_data_table():
     print("Bulding games data table ...")
+    cf = get_config()
+    if cf.lemongrab == "" or not os.path.exists(cf.lemongrab):
+        print("Invalid lemongrab path in config.yml")
+        return
     gdt = GamesDataTableBuilder()

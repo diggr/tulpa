@@ -31,7 +31,7 @@ class GamesDataTableBuilder():
             "slug_map": id_2_slug_map,
             "wiki_map": wiki_map }
 
-    def _get_data(self, mg_slugs):
+    def _get_company_data(self, mg_slugs):
         platforms = set()
         companies = self.datasets["production_details"]
 
@@ -70,19 +70,19 @@ class GamesDataTableBuilder():
         for title, links in self.gamelist.items():
             entry = {}
             entry["title"] = title
-            data = self._get_data(links["mobygames"])
+            data = self._get_company_data(links["mobygames"])
             all_companies = 0
             for country, companies in data["companies"].items():
                 n_companies = len(companies)
                 entry[country] = n_companies
                 all_companies += n_companies#
             entry["n_companies"] = all_companies
-            entry["plattforms"] = ",".join(data["platforms"])
+            entry["plattforms"] = ",".join(sorted(data["platforms"]))
 
             dataset.append(entry)
 
-        print(dataset)
         df = pd.DataFrame(dataset)
+        #df = df.fillna(0)
         filepath = self.cf.dirs["games_data_table"] / "{}_data_table.csv".format(self.cf.project_name)
         df.to_csv(filepath)
             
