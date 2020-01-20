@@ -44,10 +44,12 @@ needs.
 *tulpa* requires access to the [unified api](https://git.sc.uni-leipzig.de/ubl/diggr/infrastructure/unifiedapi),
 the correct address needs to be specified in the `config.yml` along with the 
 project name.
+In order to use the games-data-table command, the path to your lemongrab directory is needed.
 
 ```yaml
 daft: 'http://127.0.0.1:6660'
 project_name: FromSoftware
+lemongrab_dir: ''
 ```
 
 ### Build a gamelist
@@ -172,6 +174,14 @@ between the releases. The visualization will be saved as a html file.
 ```zsh
 $ tulpa vis release-timeline
 ```
+
+### Games Data Table
+
+Build a csv table with game metadata:
+* Title
+* Platform
+* Number of companies
+* Companies per country
 
 ## Copyright
 - 2019, Universitätsbibliothek Leipzig <info@ub.uni-leipzig.de>
