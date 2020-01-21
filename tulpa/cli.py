@@ -15,6 +15,7 @@ tulpa   gamelist    build
 
 """
 
+import os
 import click
 import tulpa as tp
 
