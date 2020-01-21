@@ -14,12 +14,21 @@ from .gamelist import GamelistGenerator
 from .config import get_config
 
 
+def draw_sample(sample_size):
+    cfg = get_config()
+    gg = GamelistGenerator(cfg.daft, cfg.gamelist_file)
+    gg.draw_sample(sample_size)
+    
+
 def build_company_dataset():
     cdb = CompanyDatasetBuilder()
 
+
 def build_gamelist(query, company):
     cfg = get_config()
-    gg = GamelistGenerator(query, company, cfg.daft, cfg.gamelist_file)
+    gg = GamelistGenerator(cfg.daft, cfg.gamelist_file)
+    gg.build_by_query_or_company(query, company)
+
 
 def show_datasets():
     cf = get_config()

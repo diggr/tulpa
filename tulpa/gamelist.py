@@ -1,4 +1,5 @@
 import requests
+import random
 import yaml
 
 from requests.compat import urljoin
@@ -8,23 +9,21 @@ MOBYGAMES = "mobygames"
 
 class GamelistGenerator():
 
-    def len_mobygames_entries(self):
+    def mobygames_ids(self):
         rsp = self.s.get(self.mobygames_url)
         self.ids = rsp.json()["ids"]
-        return len(self.ids)
+        return self.ids
 
     def mobygames_entries(self):
         if not hasattr(self, "ids"):
             rsp = self.s.get(self.mobygames_url)
             self.ids = rsp.json()["ids"]
         for mg_id in self.ids:
-            rsp = self.s.get(self.mobygames_url + f"/{mg_id}")
-            data = rsp.json()
-            try:
-                yield data["entry"]
-            except:
-                print(data)
-                raise
+            yield self.mobygames_entry(mg_id)
+
+    def mobygames_entry(self, mg_id):
+        rsp = self.s.get(self.mobygames_url + f"/{mg_id}")
+        return rsp.json()["entry"]
 
     def iter_titles(self, entry):
         yield entry["title"]
@@ -98,21 +97,43 @@ class GamelistGenerator():
         with open(self.gamelist_filename, "w") as f:
             yaml.dump(final_ds, f, default_flow_style=False)
 
-    def __init__(self, query, company, daft_url, gamelist_filename, mobygames=MOBYGAMES):
-        self.query = query
-        self.company = company
+    def __init__(self, daft_url, gamelist_filename, mobygames=MOBYGAMES):
         self.daft_url = daft_url
         self.gamelist_filename = gamelist_filename
         self.s = requests.Session()
         self.mobygames_url = urljoin(self.daft_url, mobygames)
 
+    def draw_sample(self, sample_size):
+        self.sample_size = sample_size
+        
+        mg = []
+        choices = random.choices(self.mobygames_ids(), k=self.sample_size)
+
+        for mg_id in tqdm(choices):
+            entry = self.mobygames_entry(mg_id)
+            added = False
+            mg.append({
+                "title": entry["title"],
+                "id": entry["id"]
+            })
+            tqdm.write("- "+entry["title"])
+            added = True
+        self.build_gamelist(mg)
+                       
+    def build_by_query_or_company(self, query, company):
+        """
+        This function wraps the gamelist generation process.
+        """
+        self.query=query
+        self.company=company
+
         mg = []
         print("searching in mobygames dataset ...")
-        for entry in tqdm(self.mobygames_entries(), total=self.len_mobygames_entries()):
+        for entry in tqdm(self.mobygames_entries(), total=len(self.mobygames_ids())):
             added = False
-            if query:
+            if self.query:
                 for title in self.iter_titles(entry):
-                    if query.lower() in title.lower():
+                    if self.query.lower() in title.lower():
                         mg.append({
                             "title": entry["title"],
                             "id": entry["id"]
@@ -122,9 +143,9 @@ class GamelistGenerator():
                         
                         break
             if not added: 
-                if company:
+                if self.company:
                     for company_name in self.iter_mobygames_companies(entry):
-                        if company.lower() in company_name.lower():
+                        if self.company.lower() in company_name.lower():
                             mg.append({
                                 "title": entry["title"],
                                 "id": entry["id"]                            

@@ -58,7 +58,22 @@ def init():
 def datasets():
     tp.show_datasets()
 
+#
+# sample commands
+#
 
+@cli.group()
+def sample():
+    pass
+
+@sample.command()
+@click.argument("size", type=click.INT)
+def draw(size):
+    """
+    Draws a sample of SIZE.
+    """
+    print(f"Drawing sample of size {size}")
+    tp.draw_sample(size)
 #
 # gamelist commands
 #
@@ -84,6 +99,9 @@ def update(force):
 
 @cli.group()
 def dataset():
+    """
+    Build datasets for further research (e.g. with games, releases or companies)
+    """
     pass
 
 @dataset.command()
@@ -107,17 +125,26 @@ def companies(force):
 
 @cli.group()
 def vis():
+    """
+    Build visualizations from the generated datasets.
+    """
     pass
 
 @vis.command()
 @click.option("--title", "-t", default="Release Timeline")
 def release_timeline(title):
+    """
+    Show releases in chronological order
+    """    
     tp.build_release_timeline(title)
 
 @vis.command()
 @click.option("-n", default=30)
 @click.option("--output_format", "-o", default="png" )
 def staff_heatmap(n, output_format):
+    """
+    Build a heatmap showing involment of persons across games.
+    """
     tp.build_staff_heatmap(n, output_format)
 
 @vis.command()
