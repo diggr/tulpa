@@ -99,7 +99,10 @@ def credits_network():
 @vis.command()
 def staff_size():
     tp.build_staff_size_chart()
+<<<<<<< HEAD
 
 @vis.command()
 def games_data_table():
     tp.build_games_data_table()
+=======
+>>>>>>> origin/refactor

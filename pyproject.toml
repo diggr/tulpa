@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "tulpa"
+version = "1.0.0"
+description = "Build research datasets and visualizations with videogame metadata."
+authors = [
+	"Peter Mühleder <muehleder@ub.uni-leipzig.de>",
+	"Florian Rämisch <raemisch@ub.uni-leipzig.de>",
+]
+license = "GPL-3.0-only"
+homepage = "https://diggr.link"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+Click = "^7.0"
+Jinja2 = "^2.10.1"
+numpy = "^1.16.3"
+pandas = "^0.24.2"
+matplotlib = "^3.0.3"
+networkx = "^2.3"
+requests = "^2.22.0"
+provit = "^1.0.2"
+PyYAML = "^5.1.1"
+tqdm = "^4.41.1"
+
+[tool.poetry.scripts]
+tulpa = "tulpa.cli:cli"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

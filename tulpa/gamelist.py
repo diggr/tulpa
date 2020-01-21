@@ -1,16 +1,24 @@
 import requests
 import yaml
-from .config import get_config
+
+from requests.compat import urljoin
 from tqdm import tqdm
+
+MOBYGAMES = "mobygames"
 
 class GamelistGenerator():
 
-    def mobygames_entries(self):
+    def len_mobygames_entries(self):
+        rsp = self.s.get(self.mobygames_url)
+        self.ids = rsp.json()["ids"]
+        return len(self.ids)
 
-        rsp = requests.get(self.cf.daft+"/mobygames")
-        ids = rsp.json()["ids"]
-        for mg_id in ids:
-            rsp = requests.get(self.cf.daft+"/mobygames/{}".format(mg_id))
+    def mobygames_entries(self):
+        if not hasattr(self, "ids"):
+            rsp = self.s.get(self.mobygames_url)
+            self.ids = rsp.json()["ids"]
+        for mg_id in self.ids:
+            rsp = self.s.get(self.mobygames_url + f"/{mg_id}")
             data = rsp.json()
             try:
                 yield data["entry"]
@@ -31,7 +39,7 @@ class GamelistGenerator():
 
     def std_id(self, dataset_name, id_):
         if dataset_name == "mobygames":
-            rsp = requests.get(self.cf.daft+"/mobygames/{}".format(id_))
+            rsp = self.s.get(self.mobygames_url + f"/{id_}")
             data = rsp.json()
             url = data["entry"]["raw"]["moby_url"]
             return url.split("/")[-1]
@@ -56,7 +64,7 @@ class GamelistGenerator():
     def build_gamelist(self, mg):
         dataset = {}
         for entry in mg:
-            rsp = requests.get(self.cf.daft+"/mobygames/{}/links".format(entry["id"]))
+            rsp = self.s.get(self.mobygames_url + f"/{entry['id']}/links")
             links = rsp.json()["links"]
 
             slug = self.std_id("mobygames", entry["id"])
@@ -87,17 +95,20 @@ class GamelistGenerator():
         ds = sorted(ds, key=lambda x: x["title"])
 
         final_ds = { x["title"]: x["links"] for x in ds }
-        with open(self.cf.gamelist_file, "w") as f:
+        with open(self.gamelist_filename, "w") as f:
             yaml.dump(final_ds, f, default_flow_style=False)
 
-    def __init__(self, query, company):
+    def __init__(self, query, company, daft_url, gamelist_filename, mobygames=MOBYGAMES):
         self.query = query
         self.company = company
-        self.cf = get_config()
+        self.daft_url = daft_url
+        self.gamelist_filename = gamelist_filename
+        self.s = requests.Session()
+        self.mobygames_url = urljoin(self.daft_url, mobygames)
 
         mg = []
         print("searching in mobygames dataset ...")
-        for entry in tqdm(self.mobygames_entries()):
+        for entry in tqdm(self.mobygames_entries(), total=self.len_mobygames_entries()):
             added = False
             if query:
                 for title in self.iter_titles(entry):
@@ -106,7 +117,7 @@ class GamelistGenerator():
                             "title": entry["title"],
                             "id": entry["id"]
                         })
-                        print("\n- "+entry["title"])
+                        tqdm.write("- "+entry["title"])
                         added = True
                         
                         break
@@ -118,7 +129,7 @@ class GamelistGenerator():
                                 "title": entry["title"],
                                 "id": entry["id"]                            
                             })
-                            print("\n- "+entry["title"])                            
+                            tqdm.write("- "+entry["title"])                            
                             break
 
         self.build_gamelist(mg)

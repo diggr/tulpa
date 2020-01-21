@@ -18,7 +18,8 @@ def build_company_dataset():
     cdb = CompanyDatasetBuilder()
 
 def build_gamelist(query, company):
-    gg = GamelistGenerator(query, company)
+    cfg = get_config()
+    gg = GamelistGenerator(query, company, cfg.daft, cfg.gamelist_file)
 
 def show_datasets():
     cf = get_config()
@@ -83,6 +84,7 @@ def build_release_dataset(force):
 def update_gamelist(force):
     print("update gamelist ...")
     build_import_dataset()
+<<<<<<< HEAD
 
 def build_games_data_table():
     print("Bulding games data table ...")
@@ -91,3 +93,5 @@ def build_games_data_table():
         print("Invalid lemongrab path in config.yml")
         return
     gdt = GamesDataTableBuilder()
+=======
+>>>>>>> origin/refactor
