@@ -15,17 +15,44 @@ tulpa   gamelist    build
 
 """
 
-import os
 import click
+import os
+import requests
 import tulpa as tp
+
 
 @click.group()
 def cli():
+    """
+    tulpa - Build visualizations and analysis for a list of video games.
+    """
     pass
 
 @cli.command()
 def init():
-    tp.initialize_project()
+    """
+    Initialize tulpa in the current working directory. This will create all required
+    subdirectories and a config file. 
+    """
+    project_name = click.prompt("Please name this project")
+
+    daft_url = click.prompt("Please enter the URL of your daft or unifiedapi")
+    try:
+        rsp = requests.get(f"{daft_url}/mobygames")
+    except Exception:
+        print("The given daft url appears to be not correct. Exiting.")
+        exit()
+    if not rsp.ok:
+        print("The given daft url appears to be not correct. Exiting.")
+        exit()
+
+    if not project_name or not daft_url:
+        print("Project name and daft URL are required. Exiting.")
+        exit()
+   
+    lemongrab_dir = click.prompt("Please enter the path to lemongrab (optional, leave empty / press space and enter to continue)").strip()
+
+    tp.initialize_project(project_name, daft_url, lemongrab_dir)
 
 @cli.command()
 def datasets():

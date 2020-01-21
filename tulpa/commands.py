@@ -32,9 +32,10 @@ def show_datasets():
             print_last_prov_entry(dataset)
 
 
-def initialize_project():  
-    print("initialize tulpa project")
-    init_config()
+def initialize_project(project_name, daft_url, lemongrab_dir):
+    print("Initializing tulpa project...")
+
+    init_config(project_name, daft_url, lemongrab_dir)
 
     cfg = get_config()
     for directory in cfg.dirs.values():

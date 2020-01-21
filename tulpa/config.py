@@ -11,16 +11,22 @@ CONFIG_TEMPLATE = {
     "lemongrab_dir": ""
 }
 
-def init_config():
-    with open(CONFIG_FILE, "w") as f:
-        yaml.dump(CONFIG_TEMPLATE, f, default_flow_style=False)
+def init_config(project_name=None, daft_url=None, lemongrab_dir=None):
+    config = CONFIG_TEMPLATE.copy()
+
+    config["project_name"] = project_name if project_name else ""
+    config["daft"] = daft_url if daft_url else ""
+    config["lemongrab_dir"] = lemongrab_dir if lemongrab_dir else ""
+
+    with open(CONFIG_FILE, "w") as config_file:
+        yaml.dump(config, config_file, default_flow_style=False)
 
 class Config:
 
     def __init__(self):
         with open(CONFIG_FILE) as f:
             cf = yaml.safe_load(f)
-        
+
         datasets_dir = Path("datasets")
         visualizations_dir = Path("visualizations")
         import_dir = Path('import')
