@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <!-- Basic Page Needs
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <meta charset="utf-8">
+    <title>G-Man Release Data Table</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- jquery -->
+    <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.4.1.slim.js"></script>    
+
+    <!-- DATATABLES -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.6.1/css/buttons.dataTables.min.css">
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.6.1/js/dataTables.buttons.min.js"></script>    
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.html5.min.js"></script>    
+
+</head>
+<body>
+
+    <table id="games_table", class="display">
+        <thead>
+            <tr>
+                <th>MADB ID</th>
+                <th>Title</th>
+                <th>Platform</th>
+                <th>Release year (MADB)</th>
+                <th>First release region</th>
+                <th>First release year</th>
+                <th>All release regions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in dataset %}
+                <tr>
+                    <td>{{ entry.ma_id }}</td>
+                    <td>{{ entry.title }}</td>
+                    <td>{{ entry.platform }}</td>
+                    <td>{{ entry.ma_release_year }}</td>
+                    <td>{{ entry.first_release_region }}</td>
+                    <td>{{ entry.first_release_year}}</td>
+                    <td>{{ entry.all_release_regions }}</td>
+                </tr>   
+            {% endfor %}    
+        </tbody>
+        <tfoot>
+            <tr>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>        
+        </tfoot>
+    </table>
+    </div>  
+
+    <script type="text/javascript">  
+    $(document).ready( function () {
+
+        $('#games_table tfoot th').each( function () {
+                var title = $(this).text();
+                $(this).html( '<input type="text" placeholder="Search '+title+'" />' );
+            } );
+
+        var table = $('#games_table').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                'csvHtml5'
+            ],
+            "pageLength": 20
+                        
+        });
+        // Apply the search
+        table.columns().every( function () {
+            var that = this;
+    
+            $( 'input', this.footer() ).on( 'keyup change clear', function () {
+                if ( that.search() !== this.value ) {
+                    console.log(this.value)
+                    that
+                        .search( this.value, true, false )
+                        .draw();
+                }
+            } );
+        } );        
+    } );
+    </script>
+
+</body>
+</html>    
