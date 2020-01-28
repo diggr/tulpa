@@ -134,6 +134,17 @@ $ tulpa build dataset releases
 Generates a dataset containing the releases of the games in various regions 
 (based on GameFAQs data).
 
+### Draw a sample
+
+Tulpa has a feature to draw a random sample of variable size. This function
+ uses the random.choices() function of python to draw a random sample of
+size SIZE from all mobygames\_ids. I.e. every mobygames ID has the same
+probability to appear in the sample.
+
+```zsh
+$ tulpa sample draw 100
+```
+
 ## Visualizations
 
 With the datasets created, you can now build visualizations.

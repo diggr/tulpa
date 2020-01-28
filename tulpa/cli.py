@@ -70,7 +70,11 @@ def sample():
 @click.argument("size", type=click.INT)
 def draw(size):
     """
-    Draws a sample of SIZE.
+    Draws a random sample of SIZE.
+
+    It uses the random.choices() function of python to draw a random sample
+    of size SIZE from all mobygames_ids. I.e. every mobygames ID has the same
+    probability to appear in the sample.
     """
     print(f"Drawing sample of size {size}")
     tp.draw_sample(size)
