@@ -134,6 +134,41 @@ $ tulpa build dataset releases
 Generates a dataset containing the releases of the games in various regions 
 (based on GameFAQs data).
 
+### Build a company dataset
+
+To generate all available company information from previously generated yaml file for each game use the following command.
+
+```zsh
+$ tulpa dataset companies
+```
+
+Result might look like:
+
+```
+{
+    "Ace Combat 04: Shattered Skies": [
+        {
+            "company_id": 1043,
+            "company_name": "Namco Limited",
+            "role": "Published by",
+            "release_countries": [
+                "Japan"
+            ],
+            "platform": "Sony PlayStation 2"
+        },
+        {
+            "company_id": 1043,
+            "company_name": "Namco Limited",
+            "role": "Developed by",
+            "release_countries": [
+                "Japan"
+            ],
+            "platform": "Sony PlayStation 2"
+        }
+    ]
+}
+```
+
 ### Draw a sample
 
 Tulpa has a feature to draw a random sample of variable size. This function
