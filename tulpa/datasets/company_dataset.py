@@ -48,8 +48,10 @@ class CompanyDatasetBuilder:
         for title, links in games.items():
 
             companies = []
-            for mg_id in links["mobygames_ids"]:
+            for m, mg_id in enumerate(links["mobygames_ids"]):
                 data = self._get_company_data(mg_id)
+                for company in data:
+                    company["game_slug"] = links["mobygames"][m]
                 companies += data
 
             dataset[title] = self._remove_duplicates(companies)
