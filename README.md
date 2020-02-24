@@ -128,10 +128,10 @@ With this games dataset you can now create the other datasets and visualizations
 ### Build release dataset
 
 ```zsh
-$ tulpa build dataset releases
+$ tulpa dataset releases
 ```
 
-Generates a dataset containing the releases of the games in various regions 
+Generates a dataset containing the releases of the games dataset in various regions 
 (based on GameFAQs data).
 
 ### Build a company dataset
@@ -168,6 +168,16 @@ Result might look like:
     ]
 }
 ```
+
+### Show all datasets
+
+To show all generated datsets inside the project folder use:
+
+```zsh
+$ tulpa datasets
+```
+
+You will get the location, name, date and time of the generated datasets.
 
 ### Draw a sample
 
