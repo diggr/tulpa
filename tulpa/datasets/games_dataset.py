@@ -9,10 +9,10 @@ from ..utils import print_last_prov_entry
 def get_company_id(slug):
     cf = get_config()
     url = cf.daft + "/mobygames/slug/{slug}"
-
     rsp = requests.get(url.format(slug=slug))
     data = rsp.json()
     return data["entry"]["id"]
+
 
 def generate_games_dataset():
     cf = get_config()
