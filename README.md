@@ -202,13 +202,19 @@ indicates the number of roles the person held during the game's production.
 The heatmap will be saved either as a png image or a pdf file.
 
 ```zsh
-$ tulpa build vis staff_heatmap
+$ tulpa vis staff_heatmap
 ```
 
 Options:
 
 * `-o`  Output format, either `pdf` or `png`
 * `-n`  Number of persons considered in the visualizations
+
+### Staff Size Development
+
+```zsh
+$ tulpa vis staff-size
+```
 
 ### Credits Network
 
@@ -238,6 +244,10 @@ Build a csv table with game metadata:
 * Platform
 * Number of companies
 * Companies per country
+
+```zsh
+$ tulpa vis games-data-table
+```
 
 ## Copyright
 - 2019, Universitätsbibliothek Leipzig <info@ub.uni-leipzig.de>
