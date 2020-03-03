@@ -14,12 +14,21 @@ from .gamelist import GamelistGenerator
 from .config import get_config
 
 
+def draw_sample(sample_size):
+    cfg = get_config()
+    gg = GamelistGenerator(cfg.daft, cfg.gamelist_file)
+    gg.draw_sample(sample_size)
+    
+
 def build_company_dataset():
     cdb = CompanyDatasetBuilder()
 
+
 def build_gamelist(query, company):
     cfg = get_config()
-    gg = GamelistGenerator(query, company, cfg.daft, cfg.gamelist_file)
+    gg = GamelistGenerator(cfg.daft, cfg.gamelist_file)
+    gg.build_by_query_or_company(query, company)
+
 
 def show_datasets():
     cf = get_config()
@@ -32,9 +41,10 @@ def show_datasets():
             print_last_prov_entry(dataset)
 
 
-def initialize_project():  
-    print("initialize tulpa project")
-    init_config()
+def initialize_project(project_name, daft_url, lemongrab_dir):
+    print("Initializing tulpa project...")
+
+    init_config(project_name, daft_url, lemongrab_dir)
 
     cfg = get_config()
     for directory in cfg.dirs.values():

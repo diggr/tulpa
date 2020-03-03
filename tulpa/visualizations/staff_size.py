@@ -8,8 +8,8 @@ from provit import Provenance
 from collections import defaultdict, Counter
 from ..config import get_config, PROVIT_AGENT
 
-PROVIT_ACTIVITY = "build_staff_heatmap"
-PROVIT_DESCRIPTION = "Heatmap of the top {n} staffmembers working on most games in the dataset."
+PROVIT_ACTIVITY = "build_staff_size"
+PROVIT_DESCRIPTION = "Building staff size chart."
 
 class StaffSizeChart:
     def __init__(self, title="Staff Size Development"):

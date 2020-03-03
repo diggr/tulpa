@@ -128,11 +128,67 @@ With this games dataset you can now create the other datasets and visualizations
 ### Build release dataset
 
 ```zsh
-$ tulpa build dataset releases
+$ tulpa dataset releases
 ```
 
-Generates a dataset containing the releases of the games in various regions 
+Generates a dataset containing the releases of the games dataset in various regions 
 (based on GameFAQs data).
+
+### Build a company dataset
+
+To generate all available company information from previously generated yaml file for each game use the following command.
+
+```zsh
+$ tulpa dataset companies
+```
+
+Result might look like:
+
+```
+{
+    "Ace Combat 04: Shattered Skies": [
+        {
+            "company_id": 1043,
+            "company_name": "Namco Limited",
+            "role": "Published by",
+            "release_countries": [
+                "Japan"
+            ],
+            "platform": "Sony PlayStation 2"
+        },
+        {
+            "company_id": 1043,
+            "company_name": "Namco Limited",
+            "role": "Developed by",
+            "release_countries": [
+                "Japan"
+            ],
+            "platform": "Sony PlayStation 2"
+        }
+    ]
+}
+```
+
+### Show all datasets
+
+To show all generated datsets inside the project folder use:
+
+```zsh
+$ tulpa datasets
+```
+
+You will get the location, name, date and time of the generated datasets.
+
+### Draw a sample
+
+Tulpa has a feature to draw a random sample of variable size. This function
+ uses the random.choices() function of python to draw a random sample of
+size SIZE from all mobygames\_ids. I.e. every mobygames ID has the same
+probability to appear in the sample.
+
+```zsh
+$ tulpa sample draw 100
+```
 
 ## Visualizations
 
@@ -146,13 +202,19 @@ indicates the number of roles the person held during the game's production.
 The heatmap will be saved either as a png image or a pdf file.
 
 ```zsh
-$ tulpa build vis staff_heatmap
+$ tulpa vis staff_heatmap
 ```
 
 Options:
 
 * `-o`  Output format, either `pdf` or `png`
 * `-n`  Number of persons considered in the visualizations
+
+### Staff Size Development
+
+```zsh
+$ tulpa vis staff-size
+```
 
 ### Credits Network
 
@@ -182,6 +244,10 @@ Build a csv table with game metadata:
 * Platform
 * Number of companies
 * Companies per country
+
+```zsh
+$ tulpa vis games-data-table
+```
 
 ## Copyright
 - 2019, Universitätsbibliothek Leipzig <info@ub.uni-leipzig.de>
