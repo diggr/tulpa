@@ -15,6 +15,7 @@ def get_company_id(slug):
         return data["entry"]["id"]
     else:
         print(f"Error while processing {slug}")
+        return None
 
 
 def generate_games_dataset():
@@ -25,7 +26,11 @@ def generate_games_dataset():
     for title, links in games.items():
         mg_ids = []
         for mg_slug in links["mobygames"]:
-            mg_ids.append(get_company_id(mg_slug))
+            company_id = get_company_id(mg_slug)
+            if company_id:
+                mg_ids.append(company_id)
+            else:
+                continue
 
         links["mobygames_ids"] = mg_ids
 
