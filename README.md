@@ -202,7 +202,7 @@ indicates the number of roles the person held during the game's production.
 The heatmap will be saved either as a png image or a pdf file.
 
 ```zsh
-$ tulpa vis staff_heatmap
+$ tulpa vis staff-heatmap
 ```
 
 Options:
