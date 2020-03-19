@@ -10,8 +10,11 @@ def get_company_id(slug):
     cf = get_config()
     url = cf.daft + "/mobygames/slug/{slug}"
     rsp = requests.get(url.format(slug=slug))
-    data = rsp.json()
-    return data["entry"]["id"]
+    if rsp.ok:
+        data = rsp.json()
+        return data["entry"]["id"]
+    else:
+        print(f"Error while processing {slug}")
 
 
 def generate_games_dataset():
@@ -34,7 +37,7 @@ def generate_games_dataset():
 
 
 def check_games_dataset():
-    
+
     cf = get_config()
     dataset_file = cf.datasets["games"]
 
@@ -69,16 +72,16 @@ def check_games_dataset():
             no_ids["gamefaqs"].append(game_title)
         else:
             if len(links["gamefaqs"]) == 0:
-                no_ids["gamefaqs"].append(game_title)                                
-        
+                no_ids["gamefaqs"].append(game_title)
+
     print("\t ... without Media Art DB entry: {}".format(len(no_ids["mediaartdb"])))
     for title in no_ids["mediaartdb"]:
         print("\t\t - {}".format(title))
     print("\t ... without Mobygames entry: {}".format(len(no_ids["mobygames"])))
     for title in no_ids["mobygames"]:
-        print("\t\t - {}".format(title))        
+        print("\t\t - {}".format(title))
     print("\t ... without GameFAQs entry: {}".format(len(no_ids["gamefaqs"])))
     for title in no_ids["gamefaqs"]:
-        print("\t\t - {}".format(title))        
+        print("\t\t - {}".format(title))
 
     print_last_prov_entry(dataset_file)
