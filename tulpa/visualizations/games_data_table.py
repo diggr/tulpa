@@ -42,12 +42,13 @@ class GamesDataTableBuilder():
                 if entry["game_slug"] in mg_slugs:
                     slug = self.datasets["slug_map"][company_id]
                     if slug in self.datasets["wiki_map"]:
-                        country = self.datasets["wiki_map"][slug]["country"] 
+                        country = self.datasets["wiki_map"][slug]["country"]
                     else:
                         country = "unknown"
                     companies_dataset[country].add(company_id)
-                    platforms.add(entry["platform"])
-        
+                    if entry["platform"]:
+                        platforms.add(entry["platform"])
+
         return {
             "platforms": list(platforms),
             "companies": companies_dataset
@@ -56,7 +57,7 @@ class GamesDataTableBuilder():
     def get_release_data(self, game_id):
         with open(self.cf.datasets["releases"]) as f:
             releases = json.load(f)
-        
+
         dataset = []
         for region, r in releases[game_id].items():
             dataset.append({
@@ -87,16 +88,16 @@ class GamesDataTableBuilder():
                 n_companies = len(companies)
                 entry[country] = n_companies
                 all_companies += n_companies
-            entry["n_companies"] = all_companies                
-            
+            entry["n_companies"] = all_companies
+
             all_releases = 0
             releases = self.get_release_data(title)
             for release in releases:
                 entry[release["region"]] = release["count"]
                 all_releases += release["count"]
             entry["n_releases"] = all_releases
-
-            entry["plattforms"] = ",".join(sorted(data["platforms"]))
+            print(data["platforms"])
+            entry["platforms"] = ",".join(sorted(data["platforms"]))
 
             dataset.append(entry)
 
@@ -104,4 +105,4 @@ class GamesDataTableBuilder():
         #df = df.fillna(0)
         filepath = self.cf.dirs["games_data_table"] / "{}_data_table.csv".format(self.cf.project_name)
         df.to_csv(filepath)
-            
+
