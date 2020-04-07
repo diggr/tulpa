@@ -58,7 +58,7 @@ class GamelistGenerator():
         if dataset_name in links:
             for link in links[dataset_name]:
                 if link["value"] > 0.9:
-                    dataset[clustername][dataset_name].add(self.std_id(dataset_name, link["id"]))        
+                    dataset[clustername][dataset_name].add(self.std_id(dataset_name, link["id"]))
 
     def build_gamelist(self, mg):
         dataset = {}
@@ -105,7 +105,7 @@ class GamelistGenerator():
 
     def draw_sample(self, sample_size):
         self.sample_size = sample_size
-        
+
         mg = []
         choices = random.choices(self.mobygames_ids(), k=self.sample_size)
 
@@ -119,7 +119,7 @@ class GamelistGenerator():
             tqdm.write("- "+entry["title"])
             added = True
         self.build_gamelist(mg)
-                       
+
     def build_by_query_or_company(self, query, company):
         """
         This function wraps the gamelist generation process.
@@ -140,17 +140,17 @@ class GamelistGenerator():
                         })
                         tqdm.write("- "+entry["title"])
                         added = True
-                        
+
                         break
-            if not added: 
+            if not added:
                 if self.company:
                     for company_name in self.iter_mobygames_companies(entry):
                         if self.company.lower() in company_name.lower():
                             mg.append({
                                 "title": entry["title"],
-                                "id": entry["id"]                            
+                                "id": entry["id"]
                             })
-                            tqdm.write("- "+entry["title"])                            
+                            tqdm.write("- "+entry["title"])
                             break
 
         self.build_gamelist(mg)

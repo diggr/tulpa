@@ -1,6 +1,7 @@
 from pathlib import Path
 from .config import get_config, init_config
 from .datasets.games_dataset import check_games_dataset, generate_games_dataset
+from .datasets.samples_dataset import draw_gamelist_sample
 from .datasets.company_dataset import CompanyDatasetBuilder
 from .datasets.releases_dataset import ReleasesDatasetBuilder
 from .datasets.import_dataset import build_import_dataset
@@ -18,7 +19,7 @@ def draw_sample(sample_size):
     cfg = get_config()
     gg = GamelistGenerator(cfg.daft, cfg.gamelist_file)
     gg.draw_sample(sample_size)
-    
+
 
 def build_company_dataset():
     cdb = CompanyDatasetBuilder()
@@ -54,7 +55,7 @@ def initialize_project(project_name, daft_url, lemongrab_dir):
 
 def build_release_timeline(title):
     print("building timeline ...")
-    ReleaseTimelineBuilder(title)    
+    ReleaseTimelineBuilder(title)
 
 
 def build_staff_heatmap(n, out_format):
@@ -69,13 +70,13 @@ def build_staff_size_chart():
     print("building staff size chart")
     StaffSizeChart()
 
-"""                    
+"""
 def check_dataset(dataset):
 
     if dataset == "games":
         check_games_dataset()
     else:
-        print("Dataset not available!")   
+        print("Dataset not available!")
 """
 
 def build_games_dataset(force):
@@ -88,8 +89,8 @@ def build_release_dataset(force):
     if Path(cf.datasets["releases"]).exists() and not force:
         print("Dataset already exists. Use '--force' option to rebuild the dataset.")
     else:
-        print("building dataset ...")            
-        ReleasesDatasetBuilder()    
+        print("building dataset ...")
+        ReleasesDatasetBuilder()
 
 def update_gamelist(force):
     print("update gamelist ...")

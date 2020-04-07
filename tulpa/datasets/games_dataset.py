@@ -1,6 +1,7 @@
 import json
 import yaml
 import os
+import random
 import requests
 from ..config import get_config
 from ..utils import print_last_prov_entry
@@ -16,6 +17,21 @@ def get_company_id(slug):
     else:
         print(f"Error while processing {slug}")
         return None
+
+def draw_gamelist_sample(sample_size):
+    cf = get_config()
+    with open(cf.gamelist_file) as f:
+        games = yaml.safe_load(f)
+
+    choices = random.choices(list(games.keys()), k=sample_size)
+
+    sample = { choice:games[choice] for choice in choices }
+
+    with open(cf.datasets["samples"], "w") as f:
+        json.dump(sample, f, indent=4)
+
+    print("completed \n")
+    print("File location: {}".format(cf.datasets["samples"]))
 
 
 def generate_games_dataset():

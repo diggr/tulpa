@@ -78,6 +78,22 @@ def draw(size):
     """
     print(f"Drawing sample of size {size}")
     tp.draw_sample(size)
+
+@sample.command()
+@click.option("--out", default=None, help="Provide a filename for the output file")
+@click.argument("size", type=click.INT)
+def draw_from_gamelist(out, size):
+    """
+    Draws a random sample from the gamelist of SIZE.
+
+    It uses the random.choices() function of python to draw a random sample
+    of size SIZE from all games in the gamelist.
+
+    Can be given a special
+    """
+    print(f"Drawing sample of size {size} from gamelist")
+    outfilename = tp.draw_gamelist_sample(size, out)
+    print(f"File location: {outfilename}")
 #
 # gamelist commands
 #

@@ -181,14 +181,35 @@ You will get the location, name, date and time of the generated datasets.
 
 ### Draw a sample
 
-Tulpa has a feature to draw a random sample of variable size. This function
- uses the random.choices() function of python to draw a random sample of
-size SIZE from all mobygames\_ids. I.e. every mobygames ID has the same
+Tulpa has a feature to draw a random sample of variable size with respect
+to different datasets. The first option is (starting from da blank project)
+to draw a random sample from mobygames. This will create a gamelist file
+containing as many games as you would like. 
+
+The second option is, to sample an already existing gamelist file. This 
+option will also draw a uniformly random sample from all games in the 
+gamelist file. 
+
+Both functions use the random.choices() function of python to draw the
+uniformly random samples of size SIZE. With either option all entries (
+either every mobygames ID or every game in the gamelist) has the same 
 probability to appear in the sample.
+
+
+The command 
 
 ```zsh
 $ tulpa sample draw 100
 ```
+
+will draw a random sample with 100 entries from all mobygames IDs and create 
+a gamelist. Whereas 
+
+```zsh
+$ tulpa sample draw-from-gamelist 100
+```
+
+uses the projects existing gamelist to draw a random sample of 100 entries from.
 
 ## Visualizations
 
