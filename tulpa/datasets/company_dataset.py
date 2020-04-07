@@ -20,14 +20,14 @@ class CompanyDatasetBuilder:
     def _get_company_data(self, id_):
         if not id_:
             return None
-            
+
         rsp = requests.get(self.daft.format(id=id_))
         data = rsp.json()
 
         if not "entry" in data:
             return None
         else:
-            return data["entry"]        
+            return data["entry"]
 
     def _remove_duplicates(self, companies):
         done = []
@@ -55,7 +55,7 @@ class CompanyDatasetBuilder:
                 companies += data
 
             dataset[title] = self._remove_duplicates(companies)
-        
+
         with open(self.cf.datasets["companies"], "w") as f:
             json.dump(dataset, f, indent=4)
 

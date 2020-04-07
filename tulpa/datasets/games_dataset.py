@@ -4,12 +4,12 @@ import os
 import random
 import requests
 from ..config import get_config
-from ..utils import print_last_prov_entry
+from ..utils import print_last_prov_entry, open_yaml, save_json
 
+config = get_config()
 
 def get_company_id(slug):
-    cf = get_config()
-    url = cf.daft + "/mobygames/slug/{slug}"
+    url = config.daft + "/mobygames/slug/{slug}"
     rsp = requests.get(url.format(slug=slug))
     if rsp.ok:
         data = rsp.json()
@@ -18,26 +18,12 @@ def get_company_id(slug):
         print(f"Error while processing {slug}")
         return None
 
-def draw_gamelist_sample(sample_size):
-    cf = get_config()
-    with open(cf.gamelist_file) as f:
-        games = yaml.safe_load(f)
-
-    choices = random.choices(list(games.keys()), k=sample_size)
-
-    sample = { choice:games[choice] for choice in choices }
-
-    with open(cf.datasets["samples"], "w") as f:
-        json.dump(sample, f, indent=4)
-
-    print("completed \n")
-    print("File location: {}".format(cf.datasets["samples"]))
-
-
-def generate_games_dataset():
-    cf = get_config()
-    with open(cf.gamelist_file) as f:
-        games = yaml.safe_load(f)
+def build_games_dataset():
+    """
+    Build the games dataset, by reading the gamelist file and fetching links and companies
+    from mobygames.
+    """
+    games = open_yaml(config.gamelist_file)
 
     for title, links in games.items():
         mg_ids = []
@@ -50,17 +36,13 @@ def generate_games_dataset():
 
         links["mobygames_ids"] = mg_ids
 
-    with open(cf.datasets["games"], "w") as f:
-        json.dump(games, f, indent=4)
-
-    print("completed \n")
-    print("File location: {}".format(cf.datasets["games"]))
+    save_json(games, config.datasets["games"])
+    return config.datasets["games"]
 
 
 def check_games_dataset():
 
-    cf = get_config()
-    dataset_file = cf.datasets["games"]
+    dataset_file = config.datasets["games"]
 
     print("\nFile location: {}\n".format(dataset_file))
 

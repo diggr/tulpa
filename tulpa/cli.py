@@ -32,7 +32,7 @@ def cli():
 def init():
     """
     Initialize tulpa in the current working directory. This will create all required
-    subdirectories and a config file. 
+    subdirectories and a config file.
     """
     project_name = click.prompt("Please name this project")
 
@@ -49,7 +49,7 @@ def init():
     if not project_name or not daft_url:
         print("Project name and daft URL are required. Exiting.")
         exit()
-   
+
     lemongrab_dir = click.prompt("Please enter the path to lemongrab (optional, leave empty / press space and enter to continue)").strip()
 
     tp.initialize_project(project_name, daft_url, lemongrab_dir)
@@ -125,9 +125,13 @@ def dataset():
     pass
 
 @dataset.command()
-@click.option('--force/--no-force', default=False)
-def games(force):
-    tp.build_games_dataset(force)
+def games():
+    """
+    Build games dataset from gamelist file by adding companies and links from
+    mobygames.
+    """
+    outfilename = tp.build_games_dataset()
+    print(f"File location: {outfilename}")
 
 @dataset.command()
 @click.option('--force/--no-force', default=False)
@@ -155,7 +159,7 @@ def vis():
 def release_timeline(title):
     """
     Show releases in chronological order
-    """    
+    """
     tp.build_release_timeline(title)
 
 @vis.command()

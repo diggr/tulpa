@@ -1,6 +1,6 @@
 from pathlib import Path
 from .config import get_config, init_config
-from .datasets.games_dataset import check_games_dataset, generate_games_dataset
+from .datasets.games_dataset import check_games_dataset, build_games_dataset
 from .datasets.samples_dataset import draw_gamelist_sample
 from .datasets.company_dataset import CompanyDatasetBuilder
 from .datasets.releases_dataset import ReleasesDatasetBuilder
@@ -78,10 +78,6 @@ def check_dataset(dataset):
     else:
         print("Dataset not available!")
 """
-
-def build_games_dataset(force):
-    print("building dataset ...")
-    generate_games_dataset()
 
 def build_release_dataset(force):
     cf = get_config()
