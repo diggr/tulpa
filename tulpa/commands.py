@@ -1,5 +1,5 @@
 from pathlib import Path
-from .config import get_config, init_config
+from .config import get_config
 from .datasets.games_dataset import check_games_dataset, build_games_dataset
 from .datasets.samples_dataset import draw_gamelist_sample
 from .datasets.company_dataset import CompanyDatasetBuilder
@@ -42,17 +42,6 @@ def show_datasets():
             print_last_prov_entry(dataset)
 
 
-def initialize_project(project_name, daft_url, lemongrab_dir):
-    print("Initializing tulpa project...")
-
-    init_config(project_name, daft_url, lemongrab_dir)
-
-    cfg = get_config()
-    for directory in cfg.dirs.values():
-        if not Path(directory).exists():
-            Path(directory).mkdir()
-
-
 def build_release_timeline(title):
     print("building timeline ...")
     ReleaseTimelineBuilder(title)
@@ -70,14 +59,6 @@ def build_staff_size_chart():
     print("building staff size chart")
     StaffSizeChart()
 
-"""
-def check_dataset(dataset):
-
-    if dataset == "games":
-        check_games_dataset()
-    else:
-        print("Dataset not available!")
-"""
 
 def build_release_dataset(force):
     cf = get_config()

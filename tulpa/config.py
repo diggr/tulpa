@@ -1,35 +1,24 @@
 import yaml
 from pathlib import Path
+from .settings import DIGGR_API
 
 PROVIT_AGENT = "tulpa_0.1.0"
-
 CONFIG_FILE = "config.yml"
-
-CONFIG_TEMPLATE = {
-    "project_name": "tulpa",
-    "daft": "",
-    "lemongrab_dir": ""
-}
-
-def init_config(project_name=None, daft_url=None, lemongrab_dir=None):
-    config = CONFIG_TEMPLATE.copy()
-
-    config["project_name"] = project_name if project_name else ""
-    config["daft"] = daft_url if daft_url else ""
-    config["lemongrab_dir"] = lemongrab_dir if lemongrab_dir else ""
-
-    with open(CONFIG_FILE, "w") as config_file:
-        yaml.dump(config, config_file, default_flow_style=False)
 
 class Config:
 
-    def __init__(self):
-        with open(CONFIG_FILE) as f:
-            cf = yaml.safe_load(f)
+    def __init__(self, diggr_api_url=DIGGR_API):
 
-        datasets_dir = Path("datasets")
-        visualizations_dir = Path("visualizations")
-        import_dir = Path('import')
+        base_path = Path(".")
+
+        datasets_dir = base_path/ "datasets"
+        visualizations_dir = base_path / "visualizations"
+        import_dir = base_path / 'import'
+
+        self.project_name = base_path.resolve().name
+        self.daft = diggr_api_url
+        self.gamelist_file = "{}.yml".format(self.project_name)
+
 
         self.dirs = {
             "datasets": datasets_dir,
@@ -45,20 +34,11 @@ class Config:
         }
 
         self.datasets = {
-            "samples": self.dirs["samples_dataset"] / "{}_samples.json".format(cf["project_name"]),
-            "games": self.dirs["games_dataset"] / "{}_games.json".format(cf["project_name"]),
-            "companies": self.dirs["companies_dataset"] / "{}_companies.json".format(cf["project_name"]),
-            "releases": self.dirs["releases_dataset"] / "{}_releases.json".format(cf["project_name"])
+            "samples": self.dirs["samples_dataset"] / f"{self.project_name}_samples.json",
+            "games": self.dirs["games_dataset"] / f"{self.project_name}_games.json",
+            "companies": self.dirs["companies_dataset"] / f"{self.project_name}_companies.json",
+            "releases": self.dirs["releases_dataset"] / f"{self.project_name}_releases.json",
         }
 
-
-        self.project_name = cf["project_name"]
-        self.daft = cf["daft"]
-        self.lemongrab = cf["lemongrab_dir"]
-        self.gamelist_file = "{}.yml".format(self.project_name)
-
 def get_config():
-    if Path(CONFIG_FILE).exists():
-        return Config()
-    else:
-        raise FileExistsError("config.yml does not exists")
+    return Config()
