@@ -3,7 +3,6 @@ from .config import get_config
 from .datasets.samples_dataset import draw_gamelist_sample
 from .datasets.releases_dataset import ReleasesDatasetBuilder
 from .visualizations.credits_network import CreditsNetwork
-from .visualizations.release_timeline import ReleaseTimelineBuilder
 from .visualizations.staff_heatmap import StaffHeatmap
 from .visualizations.staff_size import StaffSizeChart
 from .utils import print_last_prov_entry
@@ -29,11 +28,6 @@ def show_datasets():
         if Path(dataset).exists():
             print(f"\t- [{name}] {dataset}")
             print_last_prov_entry(dataset)
-
-
-def build_release_timeline(title):
-    print("building timeline ...")
-    ReleaseTimelineBuilder(title)
 
 
 def build_staff_heatmap(n, out_format):

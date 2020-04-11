@@ -1,35 +1,31 @@
 import json
 import requests
 import os
-from provit import Provenance
-from dateutil.parser import parse
-from jinja2 import Environment, FileSystemLoader
-from ..config import get_config, PROVIT_AGENT
 
-PROVIT_ACTIVITY = "build_release_timeline"
-PROVIT_DESCRIPTION = "Interactive release timeline based on GameFAQs release information."
+from dateutil.parser import parse
+from jinja2 import Template
+from ..config import PROVIT_AGENT
+from pathlib import Path
+from provit import Provenance
+from ..utils import open_json
 
 
 class ReleaseTimelineBuilder:
 
-    def __init__(self, title):
+    PROVIT_ACTIVITY = "build_release_timeline"
+    PROVIT_DESCRIPTION = "Interactive release timeline based on GameFAQs release information."
+
+    def __init__(self, title, games_dataset_path, releases_dataset_path, diggr_api_url):
         self.title = title
+        self.daft = diggr_api_url + "/mobygames/slug/{slug}"
+        self.games_dataset_path = games_dataset_path
+        self.games = open_json(games_dataset_path)
+        self.releases_dataset_path = releases_dataset_path
+        self.releases = open_json(releases_dataset_path)
 
-        self.cf = get_config()
-
-        self.daft = self.cf.daft + "/mobygames/slug/{slug}"
-
-        with open(self.cf.datasets["games"]) as f:
-            self.games = json.load(f)
-
-        with open(self.cf.datasets["releases"]) as f:
-            self.releases = json.load(f)
-
-        self.build_dataset()
-        self.build_vis()
 
     def getCover(self, title):
-        
+
         try:
             mobygames_id = self.games[title]["mobygames"][0]
             rsp = requests.get(self.daft.format(slug=mobygames_id))
@@ -41,7 +37,7 @@ class ReleaseTimelineBuilder:
                             return cover["image"]
             return ""
         except:
-            return ""    
+            return ""
 
     def get_date(self, info, region):
         if not region in info:
@@ -58,18 +54,18 @@ class ReleaseTimelineBuilder:
 
     def build_dataset(self):
 
-        self.years = set()           
+        self.years = set()
         self.dataset = []
         for title, info in self.releases.items():
             releases = []
-            
+
             cover = self.getCover(title)
 
             release = self.get_date(info, "JP")
             if release:
                 releases.append(release)
                 self.years.add(int(release["date"][:4]))
-            
+
             release = self.get_date(info, "US")
             if release:
                 releases.append(release)
@@ -83,35 +79,42 @@ class ReleaseTimelineBuilder:
                 releases.append(release)
                 self.years.add(int(release["date"][:4]))
 
-                
-            self.dataset.append([title, releases, cover])        
+
+            self.dataset.append([title, releases, cover])
 
 
-    def build_vis(self):
+    def build_vis(self, outfilename, template):
 
-        root = os.path.dirname(os.path.abspath(__file__))
-        templates_dir = os.path.join(root, 'templates')
-        env = Environment( loader = FileSystemLoader(templates_dir) )
-        template = env.get_template('release_vis.html')
+        visualization = template.render(
+            dataset=repr(json.dumps(self.dataset)),
+            years=repr(json.dumps(list(self.years))),
+            title=self.title
+        )
 
-        filepath = self.cf.dirs["release_timeline"] / "{}_release_timeline.html".format(self.cf.project_name)
+        with open(outfilename, "w") as outfile:
+            outfile.write(visualization)
 
-        with open(filepath, 'w') as f:
-            f.write(template.render(
-                dataset=repr(json.dumps(self.dataset)),
-                years=repr(json.dumps(list(self.years))),
-                title=self.title
-            ))
-
-        print("\nSave visualization ...")
-        print("File location: {}".format(filepath))
-
-        prov = Provenance(filepath, overwrite=True)
+        prov = Provenance(outfilename, overwrite=True)
         prov.add(
             agents=[ PROVIT_AGENT ],
-            activity=PROVIT_ACTIVITY,
-            description=PROVIT_DESCRIPTION
+            activity=self.PROVIT_ACTIVITY,
+            description=self.PROVIT_DESCRIPTION
         )
-        prov.add_sources([self.cf.datasets["games"], self.cf.datasets["releases"]])
+        prov.add_sources([self.games_dataset_path, self.releases_dataset_path])
         prov.add_primary_source("mobygames")
-        prov.save()            
+        prov.save()
+
+        return outfilename
+
+def build_release_timeline(title, games_dataset_path, releases_dataset_path, diggr_api_url,
+        project_name, release_timeline_path):
+    """
+    Release Timeline Factory
+    """
+    template_path = Path(__file__).parent / "templates" / "release_vis.html"
+    with open(template_path) as template_file:
+        template = Template(template_file.read())
+    rtb = ReleaseTimelineBuilder(title, games_dataset_path, releases_dataset_path, diggr_api_url)
+    rtb.build_dataset()
+    outpath = release_timeline_path / f"{project_name}_release_timeline.html"
+    return rtb.build_vis(outpath, template)

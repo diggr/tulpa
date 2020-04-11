@@ -11,6 +11,7 @@ from .datasets.import_dataset import build_import_dataset
 from .datasets.releases_dataset import build_releases_dataset
 from .visualizations.credits_network import CreditsNetwork
 from .visualizations.games_data_table import GamesDataTableBuilder
+from .visualizations.release_timeline import build_release_timeline
 from .visualizations.staff_size import StaffSizeChart
 
 cfg = get_config()
@@ -148,7 +149,17 @@ def release_timeline(title):
     """
     Show releases in chronological order
     """
-    tp.build_release_timeline(title)
+    print("Building release timeline...")
+    release_timeline_filename = build_release_timeline(
+        title,
+        cfg.datasets["games"],
+        cfg.datasets["releases"],
+        cfg.daft,
+        cfg.project_name,
+        cfg.dirs["release_timeline"]
+    )
+    print(f"Done. File saved to {release_timeline_filename}")
+
 
 @vis.command()
 @click.option("-n", default=30)
