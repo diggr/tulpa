@@ -11,8 +11,9 @@ class ReleasesDatasetBuilder:
     PROVIT_ACTIVITY = "build_releases_dataset"
     PROVIT_DESCRIPTION = "Contains all available release information from GameFAQS for each game."
 
-    def __init__(self, games_dataset, diggr_api):
-        self.games_dataset = games_dataset
+    def __init__(self, games_dataset_path, diggr_api):
+        self.games = open_json(games_dataset_path)
+        self.games_dataset_path = games_dataset_path
         self.daft = diggr_api + "/gamefaqs/{id}"
 
     def _get_gamefaqs_data(self, id_):
@@ -31,7 +32,7 @@ class ReleasesDatasetBuilder:
 
         dataset = {}
 
-        for title, links in games.items():
+        for title, links in self.games.items():
 
             releases = defaultdict(list)
 
@@ -55,24 +56,23 @@ class ReleasesDatasetBuilder:
             activity=self.PROVIT_ACTIVITY,
             description=self.PROVIT_DESCRIPTION
         )
-        prov.add_sources([self.cf.datasets["games"]])
+        prov.add_sources([self.games_dataset_path])
         prov.add_primary_source("gamefaqs")
         prov.save()
 
-        return release_dataset_path
+        return outfilename
 
 
-def build_releases_dataset(release_dataset_path, games_dataset_path, diggr_api_url, force):
+def build_releases_dataset(releases_dataset_path, games_dataset_path, diggr_api_url, force):
     """
     Release Dataset Factory
     """
     if not games_dataset_path.is_file():
-        raise FileNotFoundError("Games dataset not found. Run tulpa dataset games to create it")
-    if release_dataset_path.exists() and not force:
-        raise FileExistsError(f"Dataset already exists at {dataset_path})")
+        raise FileNotFoundError(f"Games dataset not found at {games_dataset_path}. Run tulpa dataset games to create it")
+    if releases_dataset_path.exists() and not force:
+        raise FileExistsError(f"Dataset already exists at {releases_dataset_path}")
     else:
-        games_dataset = open_json(games_dataset_path)
         rdb = ReleasesDatasetBuilder(games_dataset_path, diggr_api_url)
-        outfilename = rdb.build_dataset(release_dataset_path)
+        outfilename = rdb.build_dataset(releases_dataset_path)
         return outfilename
 
