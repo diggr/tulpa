@@ -8,13 +8,13 @@ from ..config import get_config
 
 try:
     import lemongrab
+
     LEMONGRAB_AVAILABLE = True
 except ImportError:
     LEMONGRAB_AVAILABE = False
 
 
-class GamesDataTableBuilder():
-
+class GamesDataTableBuilder:
     def __init__(self):
         self.cf = get_config()
 
@@ -50,21 +50,24 @@ class GamesDataTableBuilder():
             dataset.append(entry)
 
         df = pd.DataFrame(dataset)
-        #df = df.fillna(0)
-        filepath = self.cf.dirs["games_data_table"] / "{}_data_table.csv".format(self.cf.project_name)
+        # df = df.fillna(0)
+        filepath = self.cf.dirs["games_data_table"] / "{}_data_table.csv".format(
+            self.cf.project_name
+        )
         df.to_csv(filepath)
 
     def _load_lemongrab_datasets(self):
 
         dataset, wiki, id_2_slug = lemongrab.utils.get_datasets()
 
-        id_2_slug_map = { x["company_id"]: x["slug"] for x in id_2_slug }
-        wiki_map = { x["mobygames_slug"]: x for x in wiki }
+        id_2_slug_map = {x["company_id"]: x["slug"] for x in id_2_slug}
+        wiki_map = {x["mobygames_slug"]: x for x in wiki}
 
         self.datasets = {
             "production_details": dataset,
             "slug_map": id_2_slug_map,
-            "wiki_map": wiki_map }
+            "wiki_map": wiki_map,
+        }
 
     def _get_company_data(self, mg_slugs):
         platforms = set()
@@ -84,10 +87,7 @@ class GamesDataTableBuilder():
                     if entry["platform"]:
                         platforms.add(entry["platform"])
 
-        return {
-            "platforms": list(platforms),
-            "companies": companies_dataset
-        }
+        return {"platforms": list(platforms), "companies": companies_dataset}
 
     def get_release_data(self, game_id):
         with open(self.cf.datasets["releases"]) as f:
@@ -95,12 +95,6 @@ class GamesDataTableBuilder():
 
         dataset = []
         for region, r in releases[game_id].items():
-            dataset.append({
-                "region": region+"_releases",
-                "count": len(r)
-            })
+            dataset.append({"region": region + "_releases", "count": len(r)})
 
         return dataset
-
-
-

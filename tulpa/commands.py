@@ -1,24 +1,18 @@
 from pathlib import Path
 from .config import get_config
-from .datasets.samples_dataset import draw_gamelist_sample
-from .datasets.releases_dataset import ReleasesDatasetBuilder
-from .visualizations.credits_network import CreditsNetwork
 from .visualizations.staff_heatmap import StaffHeatmap
-from .visualizations.staff_size import StaffSizeChart
 from .utils import print_last_prov_entry
 from .gamelist import GamelistGenerator
-from .config import get_config
 
 cfg = get_config()
 
+
 def draw_sample(sample_size):
-    cfg = get_config()
     gg = GamelistGenerator(cfg.daft, cfg.gamelist_file)
     gg.draw_sample(sample_size)
 
 
 def build_gamelist(query, company):
-    cfg = get_config()
     gg = GamelistGenerator(cfg.daft, cfg.gamelist_file)
     gg.build_by_query_or_company(query, company)
 

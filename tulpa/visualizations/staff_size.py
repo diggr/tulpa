@@ -2,7 +2,8 @@ import json
 import requests
 import numpy as np
 import matplotlib
-matplotlib.use('TkAgg')  
+
+matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 from provit import Provenance
 from collections import defaultdict, Counter
@@ -10,6 +11,7 @@ from ..config import get_config, PROVIT_AGENT
 
 PROVIT_ACTIVITY = "build_staff_size"
 PROVIT_DESCRIPTION = "Building staff size chart."
+
 
 class StaffSizeChart:
     def __init__(self, title="Staff Size Development"):
@@ -23,10 +25,8 @@ class StaffSizeChart:
 
         self.build_staff_size_chart()
 
-
     def build_staff_size_chart(self):
         dataset = []
-        
 
         for title, links in self.games.items():
             developers = set()
@@ -48,26 +48,25 @@ class StaffSizeChart:
                         for credit in credits["credits"]:
                             if credit["developer_id"]:
                                 developers.add(credit["developer_id"])
-            
+
             id_ = str(min(years)) + "_" + title
 
             dataset.append((id_, len(developers)))
 
         sorted_dataset = sorted(dataset, key=lambda x: x[0])
 
-        labels = [ x[0] for x in sorted_dataset if x[1] > 0 ]
+        labels = [x[0] for x in sorted_dataset if x[1] > 0]
         y_pos = np.arange(len(labels))
-        values = [ x[1] for x in sorted_dataset  if x[1] > 0 ]
+        values = [x[1] for x in sorted_dataset if x[1] > 0]
 
-        fig, ax = plt.subplots(figsize=(len(labels)/1,12))
+        fig, ax = plt.subplots(figsize=(len(labels) / 1, 12))
 
-        plt.bar(y_pos, values, align='center', alpha=0.5)
+        plt.bar(y_pos, values, align="center", alpha=0.5)
         plt.xticks(y_pos, labels)
-        plt.ylabel('Staff size')
+        plt.ylabel("Staff size")
         plt.title(self.title)
-        plt.setp( ax.xaxis.get_majorticklabels(), rotation=-45, ha="left" )
-        plt.gcf().subplots_adjust(bottom=0.3 )
-
+        plt.setp(ax.xaxis.get_majorticklabels(), rotation=-45, ha="left")
+        plt.gcf().subplots_adjust(bottom=0.3)
 
         plt.show()
 

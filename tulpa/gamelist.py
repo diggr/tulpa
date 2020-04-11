@@ -7,8 +7,8 @@ from tqdm import tqdm
 
 MOBYGAMES = "mobygames"
 
-class GamelistGenerator():
 
+class GamelistGenerator:
     def mobygames_ids(self):
         rsp = self.s.get(self.mobygames_url)
         self.ids = rsp.json()["ids"]
@@ -43,7 +43,7 @@ class GamelistGenerator():
             url = data["entry"]["raw"]["moby_url"]
             return url.split("/")[-1]
         elif dataset_name == "gamefaqs":
-            return id_.replace("__","/")
+            return id_.replace("__", "/")
         else:
             return id_
 
@@ -58,7 +58,9 @@ class GamelistGenerator():
         if dataset_name in links:
             for link in links[dataset_name]:
                 if link["value"] > 0.9:
-                    dataset[clustername][dataset_name].add(self.std_id(dataset_name, link["id"]))
+                    dataset[clustername][dataset_name].add(
+                        self.std_id(dataset_name, link["id"])
+                    )
 
     def build_gamelist(self, mg):
         dataset = {}
@@ -72,9 +74,9 @@ class GamelistGenerator():
             if not clustername:
                 clustername = entry["title"]
                 dataset[clustername] = {
-                    "mobygames": set([ slug ]),
+                    "mobygames": set([slug]),
                     "mediaartdb": set(),
-                    "gamefaqs": set()
+                    "gamefaqs": set(),
                 }
 
             self.add_links(links, "mobygames", dataset, clustername)
@@ -83,17 +85,19 @@ class GamelistGenerator():
 
         ds = []
         for name, links in dataset.items():
-            ds.append({
-                "title": name,
-                "links": {
-                    "mobygames": list(links["mobygames"]),
-                    "gamefaqs": list(links["gamefaqs"]),
-                    "mediaartdb": list(links["mediaartdb"])
+            ds.append(
+                {
+                    "title": name,
+                    "links": {
+                        "mobygames": list(links["mobygames"]),
+                        "gamefaqs": list(links["gamefaqs"]),
+                        "mediaartdb": list(links["mediaartdb"]),
+                    },
                 }
-            })
+            )
         ds = sorted(ds, key=lambda x: x["title"])
 
-        final_ds = { x["title"]: x["links"] for x in ds }
+        final_ds = {x["title"]: x["links"] for x in ds}
         with open(self.gamelist_filename, "w") as f:
             yaml.dump(final_ds, f, default_flow_style=False)
 
@@ -111,21 +115,16 @@ class GamelistGenerator():
 
         for mg_id in tqdm(choices):
             entry = self.mobygames_entry(mg_id)
-            added = False
-            mg.append({
-                "title": entry["title"],
-                "id": entry["id"]
-            })
-            tqdm.write("- "+entry["title"])
-            added = True
+            mg.append({"title": entry["title"], "id": entry["id"]})
+            tqdm.write("- " + entry["title"])
         self.build_gamelist(mg)
 
     def build_by_query_or_company(self, query, company):
         """
         This function wraps the gamelist generation process.
         """
-        self.query=query
-        self.company=company
+        self.query = query
+        self.company = company
 
         mg = []
         print("searching in mobygames dataset ...")
@@ -134,11 +133,8 @@ class GamelistGenerator():
             if self.query:
                 for title in self.iter_titles(entry):
                     if self.query.lower() in title.lower():
-                        mg.append({
-                            "title": entry["title"],
-                            "id": entry["id"]
-                        })
-                        tqdm.write("- "+entry["title"])
+                        mg.append({"title": entry["title"], "id": entry["id"]})
+                        tqdm.write("- " + entry["title"])
                         added = True
 
                         break
@@ -146,11 +142,8 @@ class GamelistGenerator():
                 if self.company:
                     for company_name in self.iter_mobygames_companies(entry):
                         if self.company.lower() in company_name.lower():
-                            mg.append({
-                                "title": entry["title"],
-                                "id": entry["id"]
-                            })
-                            tqdm.write("- "+entry["title"])
+                            mg.append({"title": entry["title"], "id": entry["id"]})
+                            tqdm.write("- " + entry["title"])
                             break
 
         self.build_gamelist(mg)

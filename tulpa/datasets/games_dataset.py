@@ -8,6 +8,7 @@ from ..utils import print_last_prov_entry, open_yaml, save_json
 
 config = get_config()
 
+
 def get_company_id(slug):
     url = config.daft + "/mobygames/slug/{slug}"
     rsp = requests.get(url.format(slug=slug))
@@ -17,6 +18,7 @@ def get_company_id(slug):
     else:
         print(f"Error while processing {slug}")
         return None
+
 
 def build_games_dataset():
     """
@@ -51,11 +53,7 @@ def check_games_dataset():
 
     print("Number of games: {}".format(len(ds)))
 
-    no_ids = {
-        "gamefaqs": [],
-        "mediaartdb": [],
-        "mobygames":  []
-    }
+    no_ids = {"gamefaqs": [], "mediaartdb": [], "mobygames": []}
 
     for game_title, links in ds.items():
 

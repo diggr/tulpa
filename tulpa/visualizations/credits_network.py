@@ -11,8 +11,8 @@ PROVIT_DESCRIPTION = "Network of games connected by overlapping development staf
 
 NETWORK_FILE = "{project_name}_credits_network_{timestamp}.graphml"
 
-class CreditsNetwork:
 
+class CreditsNetwork:
     def __init__(self):
         self.cf = get_config()
         self.daft = self.cf.daft + "/mobygames/slug/{slug}"
@@ -45,7 +45,7 @@ class CreditsNetwork:
                             for credit in credits["credits"]:
                                 devs.add(credit["developer_id"])
 
-        return set([x for x in devs if x])    
+        return set([x for x in devs if x])
 
     def build_network(self):
 
@@ -56,16 +56,16 @@ class CreditsNetwork:
         with open(cf.datasets["games"]) as f:
             games = json.load(f)
 
-        #build dataset
+        # build dataset
         dataset = {}
         for game, links in games.items():
             devs = self._fetch_credits(links["mobygames"])
-            if len(devs) > 0:        
+            if len(devs) > 0:
                 dataset[game] = devs
             else:
                 print("no credits available for ", game)
 
-        #build graph
+        # build graph
         g2 = nx.Graph()
         for s1, s2 in combinations(list(dataset), 2):
             overlap = dataset[s1].intersection(dataset[s2])
@@ -76,17 +76,17 @@ class CreditsNetwork:
                 smallest = len(dataset[s2])
 
             if len(overlap) > 0:
-                sim2 = len(overlap)/smallest
+                sim2 = len(overlap) / smallest
             else:
                 sim2 = 0
-                
+
             if sim2 > 0:
                 g2.add_edge(s1, s2, weight=sim2)
 
-        #save
+        # save
         filename = NETWORK_FILE.format(
-            project_name=self.cf.project_name, 
-            timestamp=datetime.now().isoformat())
+            project_name=self.cf.project_name, timestamp=datetime.now().isoformat()
+        )
 
         filepath = self.cf.dirs["credits_network"] / filename
 
@@ -96,9 +96,9 @@ class CreditsNetwork:
 
         prov = Provenance(filepath)
         prov.add(
-            agents=[ PROVIT_AGENT ],
+            agents=[PROVIT_AGENT],
             activity=PROVIT_ACTIVITY,
-            description=PROVIT_DESCRIPTION
+            description=PROVIT_DESCRIPTION,
         )
         prov.add_sources([self.cf.datasets["games"]])
         prov.add_primary_source("mobygames")

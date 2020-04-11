@@ -6,10 +6,12 @@ from ..config import get_config, PROVIT_AGENT
 
 
 PROVIT_ACTIVITY = "build_company_dataset"
-PROVIT_DESCRIPTION = "Contains all available company information from Mobygames for each game."
+PROVIT_DESCRIPTION = (
+    "Contains all available company information from Mobygames for each game."
+)
+
 
 class CompanyDatasetBuilder:
-
     def __init__(self):
 
         self.cf = get_config()
@@ -33,12 +35,11 @@ class CompanyDatasetBuilder:
         done = []
         dataset = []
         for c in companies:
-            id_ = str(c["company_id"])+c["role"]
+            id_ = str(c["company_id"]) + c["role"]
             if id_ not in done:
                 dataset.append(c)
                 done.append(c)
         return dataset
-
 
     def build_dataset(self):
         with open(self.cf.datasets["games"]) as f:
@@ -61,9 +62,9 @@ class CompanyDatasetBuilder:
 
         prov = Provenance(self.cf.datasets["companies"], overwrite=True)
         prov.add(
-            agents=[ PROVIT_AGENT ],
+            agents=[PROVIT_AGENT],
             activity=PROVIT_ACTIVITY,
-            description=PROVIT_DESCRIPTION
+            description=PROVIT_DESCRIPTION,
         )
         prov.add_sources([self.cf.datasets["games"]])
         prov.add_primary_source("mobygames")

@@ -5,7 +5,7 @@ from ..utils import print_last_prov_entry
 
 
 def build_import_dataset():
-    
+
     cf = get_config()
     dataset_file = cf.datasets["games"]
 

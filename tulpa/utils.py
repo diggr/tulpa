@@ -2,6 +2,7 @@ import json
 import yaml
 from provit import Provenance
 
+
 def save_json(data, outfilename):
     """
     Wrapper around json.dump().
@@ -9,6 +10,7 @@ def save_json(data, outfilename):
     """
     with open(outfilename, "w") as outfile:
         json.dump(data, outfile, indent=4)
+
 
 def open_json(infilename):
     """
@@ -18,6 +20,7 @@ def open_json(infilename):
     with open(infilename) as infile:
         return json.load(infile)
 
+
 def open_yaml(infilename):
     """
     Wrapper around yaml.safe_load().
@@ -26,8 +29,10 @@ def open_yaml(infilename):
     with open(infilename, "r") as infile:
         return yaml.safe_load(infile)
 
+
 def prov_slug(uri):
     return uri.split("/")[-1]
+
 
 def print_last_prov_entry(filepath):
 
@@ -36,7 +41,10 @@ def print_last_prov_entry(filepath):
     if not last_entry:
         print("\n\t  No provenance information available")
     else:
-        print("\n\t  Last provenance entry ({}):\n\t  '{}' ({})\n".format(
-            last_entry["ended_at"],
-            last_entry["activity_desc"],
-            ", ".join( [prov_slug(x) for x in last_entry["agent"] ] )))
+        print(
+            "\n\t  Last provenance entry ({}):\n\t  '{}' ({})\n".format(
+                last_entry["ended_at"],
+                last_entry["activity_desc"],
+                ", ".join([prov_slug(x) for x in last_entry["agent"]]),
+            )
+        )
