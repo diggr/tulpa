@@ -75,8 +75,4 @@ def update_gamelist(force):
 
 def build_games_data_table():
     print("Bulding games data table ...")
-    cf = get_config()
-    if cf.lemongrab == "" or not Path(cf.lemongrab).is_dir():
-        print("Invalid lemongrab path in config.yml")
-        return
     gdt = GamesDataTableBuilder()
