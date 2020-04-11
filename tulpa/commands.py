@@ -33,13 +33,3 @@ def show_datasets():
 def build_staff_heatmap(n, out_format):
     print("building heatmap ...")
     StaffHeatmap(n, out_format)
-
-
-def build_release_dataset(force):
-    cf = get_config()
-
-    if Path(cf.datasets["releases"]).exists() and not force:
-        print("Dataset already exists. Use '--force' option to rebuild the dataset.")
-    else:
-        print("building dataset ...")
-        ReleasesDatasetBuilder()
