@@ -10,6 +10,14 @@ def save_json(data, outfilename):
     with open(outfilename, "w") as outfile:
         json.dump(data, outfile, indent=4)
 
+def open_json(infilename):
+    """
+    Wrapper around json.load().
+    Accepts a filename.
+    """
+    with open(infilename) as infile:
+        return json.load(infile)
+
 def open_yaml(infilename):
     """
     Wrapper around yaml.safe_load().
