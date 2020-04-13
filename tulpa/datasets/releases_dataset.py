@@ -1,13 +1,12 @@
 import json
 import requests
 
+from .builder import Builder
 from collections import defaultdict
-from ..config import PROVIT_AGENT
-from provit import Provenance
 from ..utils import open_json, save_json
 
 
-class ReleasesDatasetBuilder:
+class ReleasesDatasetBuilder(Builder):
 
     PROVIT_ACTIVITY = "build_releases_dataset"
     PROVIT_DESCRIPTION = (
@@ -16,8 +15,8 @@ class ReleasesDatasetBuilder:
 
     def __init__(self, games_dataset_path, diggr_api):
         self.games = open_json(games_dataset_path)
-        self.games_dataset_path = games_dataset_path
         self.daft = diggr_api + "/gamefaqs/{id}"
+        super().__init__([games_dataset_path], "gamefaqs")
 
     def _get_gamefaqs_data(self, id_):
         if not id_:
@@ -52,16 +51,6 @@ class ReleasesDatasetBuilder:
 
         save_json(dataset, outfilename)
 
-        prov = Provenance(outfilename, overwrite=True)
-        prov.add(
-            agents=[PROVIT_AGENT],
-            activity=self.PROVIT_ACTIVITY,
-            description=self.PROVIT_DESCRIPTION,
-        )
-        prov.add_sources([self.games_dataset_path])
-        prov.add_primary_source("gamefaqs")
-        prov.save()
-
         return outfilename
 
 
@@ -79,5 +68,5 @@ def build_releases_dataset(
         raise FileExistsError(f"Dataset already exists at {releases_dataset_path}")
     else:
         rdb = ReleasesDatasetBuilder(games_dataset_path, diggr_api_url)
-        outfilename = rdb.build_dataset(releases_dataset_path)
+        outfilename = rdb.build(releases_dataset_path)
         return outfilename

@@ -3,40 +3,57 @@ import yaml
 import os
 import random
 import requests
+
+from .builder import Builder
 from ..utils import print_last_prov_entry, open_yaml, open_json, save_json
 
 
-def get_company_id(slug, diggr_api_url):
-    url = diggr_api_url + "/mobygames/slug/{slug}"
-    rsp = requests.get(url.format(slug=slug))
-    if rsp.ok:
-        data = rsp.json()
-        return data["entry"]["id"]
-    else:
-        print(f"Error while processing {slug}")
-        return None
+class GamesDatasetBuilder(Builder):
+
+    PROVIT_ACTIVITY = "build_games_dataset"
+    PROVIT_DESCRIPTION = "Contains all mobygames links and for the games in the gamelist "
+
+    def __init__(self, gamelist_path, diggr_api_url):
+        self.diggr_api = diggr_api_url + "/mobygames/slug/{slug}"
+        self.games = open_yaml(gamelist_path)
+        self.session = requests.Session()
+        super().__init__([gamelist_path], "mobygames")
+
+    def _get_company_id(self, slug):
+        rsp = self.session.get(self.diggr_api.format(slug=slug))
+        if rsp.ok:
+            data = rsp.json()
+            return data["entry"]["id"]
+        else:
+            print(f"Error while processing {slug}")
+            return None
+
+    def build_dataset(self, outfilename):
+        """
+        Build the games dataset, by reading the gamelist file and fetching links and companies
+        from mobygames.
+        """
+        for title, links in self.games.items():
+            mg_ids = []
+            for mg_slug in links["mobygames"]:
+                company_id = self._get_company_id(mg_slug)
+                if company_id:
+                    mg_ids.append(company_id)
+                else:
+                    continue
+            links["mobygames_ids"] = mg_ids
+
+        save_json(self.games, outfilename)
+        return outfilename
 
 
-def build_games_dataset(games_dataset_path, gamelist_path, diggr_api_url):
+def build_games_dataset(games_dataset_path, gamelist_file, diggr_api_url):
     """
-    Build the games dataset, by reading the gamelist file and fetching links and companies
-    from mobygames.
+    Games Dataset Factory
     """
-    games = open_yaml(gamelist_path)
-
-    for title, links in games.items():
-        mg_ids = []
-        for mg_slug in links["mobygames"]:
-            company_id = get_company_id(mg_slug, diggr_api_url)
-            if company_id:
-                mg_ids.append(company_id)
-            else:
-                continue
-
-        links["mobygames_ids"] = mg_ids
-
-    save_json(games, games_dataset_path)
-    return games_dataset_path
+    gdb = GamesDatasetBuilder(gamelist_file, diggr_api_url)
+    outfilename = gdb.build(games_dataset_path)
+    return outfilename
 
 
 def check_games_dataset(games_dataset_path):
