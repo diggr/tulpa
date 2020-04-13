@@ -3,14 +3,11 @@ import yaml
 import os
 import random
 import requests
-from ..config import get_config
-from ..utils import print_last_prov_entry, open_yaml, save_json
-
-config = get_config()
+from ..utils import print_last_prov_entry, open_yaml, open_json, save_json
 
 
-def get_company_id(slug):
-    url = config.daft + "/mobygames/slug/{slug}"
+def get_company_id(slug, diggr_api_url):
+    url = diggr_api_url + "/mobygames/slug/{slug}"
     rsp = requests.get(url.format(slug=slug))
     if rsp.ok:
         data = rsp.json()
@@ -20,17 +17,17 @@ def get_company_id(slug):
         return None
 
 
-def build_games_dataset():
+def build_games_dataset(games_dataset_path, gamelist_path, diggr_api_url):
     """
     Build the games dataset, by reading the gamelist file and fetching links and companies
     from mobygames.
     """
-    games = open_yaml(config.gamelist_file)
+    games = open_yaml(gamelist_path)
 
     for title, links in games.items():
         mg_ids = []
         for mg_slug in links["mobygames"]:
-            company_id = get_company_id(mg_slug)
+            company_id = get_company_id(mg_slug, diggr_api_url)
             if company_id:
                 mg_ids.append(company_id)
             else:
@@ -38,18 +35,13 @@ def build_games_dataset():
 
         links["mobygames_ids"] = mg_ids
 
-    save_json(games, config.datasets["games"])
-    return config.datasets["games"]
+    save_json(games, games_dataset_path)
+    return games_dataset_path
 
 
-def check_games_dataset():
+def check_games_dataset(games_dataset_path):
 
-    dataset_file = config.datasets["games"]
-
-    print("\nFile location: {}\n".format(dataset_file))
-
-    with open(dataset_file) as f:
-        ds = json.load(f)
+    ds = open_json(games_dataset_path)
 
     print("Number of games: {}".format(len(ds)))
 

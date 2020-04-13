@@ -1,23 +1,22 @@
 import json
 import requests
+
 from provit import Provenance
 from collections import defaultdict
-from ..config import get_config, PROVIT_AGENT
+from ..config import PROVIT_AGENT
+from ..utils import open_json, save_json
 
+class CompaniesDatasetBuilder:
 
-PROVIT_ACTIVITY = "build_company_dataset"
-PROVIT_DESCRIPTION = (
-    "Contains all available company information from Mobygames for each game."
-)
+    PROVIT_ACTIVITY = "build_companies_dataset"
+    PROVIT_DESCRIPTION = (
+        "Contains all available company information from Mobygames for each game."
+    )
 
+    def __init__(self, diggr_api_url, games_dataset_path):
 
-class CompanyDatasetBuilder:
-    def __init__(self):
-
-        self.cf = get_config()
-        self.daft = self.cf.daft + "/mobygames/{id}/companies"
-
-        self.build_dataset()
+        self.daft = diggr_api_url + "/mobygames/{id}/companies"
+        self.games_dataset_path = games_dataset_path
 
     def _get_company_data(self, id_):
         if not id_:
@@ -41,9 +40,8 @@ class CompanyDatasetBuilder:
                 done.append(c)
         return dataset
 
-    def build_dataset(self):
-        with open(self.cf.datasets["games"]) as f:
-            games = json.load(f)
+    def build_dataset(self, outfilename):
+        games = open_json(self.games_dataset_path)
 
         dataset = {}
         for title, links in games.items():
@@ -57,18 +55,25 @@ class CompanyDatasetBuilder:
 
             dataset[title] = self._remove_duplicates(companies)
 
-        with open(self.cf.datasets["companies"], "w") as f:
-            json.dump(dataset, f, indent=4)
+        save_json(dataset, outfilename)
 
-        prov = Provenance(self.cf.datasets["companies"], overwrite=True)
+        prov = Provenance(outfilename, overwrite=True)
         prov.add(
             agents=[PROVIT_AGENT],
-            activity=PROVIT_ACTIVITY,
-            description=PROVIT_DESCRIPTION,
+            activity=self.PROVIT_ACTIVITY,
+            description=self.PROVIT_DESCRIPTION,
         )
-        prov.add_sources([self.cf.datasets["games"]])
+        prov.add_sources([self.games_dataset_path])
         prov.add_primary_source("mobygames")
         prov.save()
 
-        print("completed")
-        print("\nFile location: {}".format(self.cf.datasets["companies"]))
+        return outfilename
+
+def build_companies_dataset(companies_dataset_path, games_dataset_path, diggr_api_url):
+    """
+    Companies Dataset Factory
+    """
+    cdb = CompaniesDatasetBuilder(diggr_api_url, games_dataset_path)
+    outfilename = cdb.build_dataset(companies_dataset_path)
+    return outfilename
+

@@ -21,7 +21,7 @@ class Config:
             "datasets": datasets_dir,
             "visualizations": visualizations_dir,
             "games_dataset": datasets_dir / "games",
-            "samples_dataset": datasets_dir / "samples",
+            "sample_dataset": datasets_dir / "sample",
             "companies_dataset": datasets_dir / "companies",
             "releases_dataset": datasets_dir / "releases",
             "credits_network": visualizations_dir / "credits_network",
@@ -31,8 +31,8 @@ class Config:
         }
 
         self.datasets = {
-            "samples": self.dirs["samples_dataset"]
-            / f"{self.project_name}_samples.json",
+            "sample": self.dirs["sample_dataset"]
+            / f"{self.project_name}_sample.json",
             "games": self.dirs["games_dataset"] / f"{self.project_name}_games.json",
             "companies": self.dirs["companies_dataset"]
             / f"{self.project_name}_companies.json",

@@ -9,6 +9,13 @@ MOBYGAMES = "mobygames"
 
 
 class GamelistGenerator:
+
+    def __init__(self, daft_url, gamelist_filename, mobygames=MOBYGAMES):
+        self.daft_url = daft_url
+        self.gamelist_filename = gamelist_filename
+        self.s = requests.Session()
+        self.mobygames_url = urljoin(self.daft_url, mobygames)
+
     def mobygames_ids(self):
         rsp = self.s.get(self.mobygames_url)
         self.ids = rsp.json()["ids"]
@@ -101,12 +108,6 @@ class GamelistGenerator:
         with open(self.gamelist_filename, "w") as f:
             yaml.dump(final_ds, f, default_flow_style=False)
 
-    def __init__(self, daft_url, gamelist_filename, mobygames=MOBYGAMES):
-        self.daft_url = daft_url
-        self.gamelist_filename = gamelist_filename
-        self.s = requests.Session()
-        self.mobygames_url = urljoin(self.daft_url, mobygames)
-
     def draw_sample(self, sample_size):
         self.sample_size = sample_size
 
@@ -147,3 +148,22 @@ class GamelistGenerator:
                             break
 
         self.build_gamelist(mg)
+
+
+def draw_sample(sample_size, diggr_api_url, gamelist_filename):
+    """
+    Draws a sample of sample_size from mobygames and saves it to gamelist_filename
+    """
+    gg = GamelistGenerator(diggr_api_url, gamelist_filename)
+    gg.draw_sample(sample_size)
+    return gg.gamelist_filename
+
+
+def build_gamelist(query, company, diggr_api_url, gamelist_filename):
+    """
+    Creates a gamelist from a query or company and saves it to gamelist_filename.
+    """
+    gg = GamelistGenerator(diggr_api_url, gamelist_filename)
+    gg.build_by_query_or_company(query, company)
+    return gg.gamelist_filename
+

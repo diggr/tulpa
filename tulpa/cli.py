@@ -1,11 +1,15 @@
 import click
 import sys
-import tulpa as tp
 
 from .config import get_config
+from .datasets.companies_dataset import build_companies_dataset
 from .datasets.games_dataset import build_games_dataset
 from .datasets.import_dataset import build_import_dataset
 from .datasets.releases_dataset import build_releases_dataset
+from .datasets.sample_dataset import build_sample_dataset
+from .gamelist import draw_sample, build_gamelist
+from pathlib import Path
+from .utils import print_last_prov_entry
 from .visualizations.credits_network import CreditsNetwork
 from .visualizations.games_data_table import GamesDataTableBuilder
 from .visualizations.release_timeline import build_release_timeline
@@ -28,46 +32,10 @@ def datasets():
     Show available datasets.
     """
     print("Available datasets:\n")
-    tp.get_datasets()
-
-
-@cli.group()
-def sample():
-    """
-    Draw samples from a gamelist or mobygames.
-    """
-    pass
-
-
-@sample.command()
-@click.argument("size", type=click.INT)
-def draw(size):
-    """
-    Draws a random sample of SIZE.
-
-    It uses the random.choices() function of python to draw a random sample
-    of size SIZE from all mobygames_ids. I.e. every mobygames ID has the same
-    probability to appear in the sample.
-    """
-    print(f"Drawing sample of size {size}")
-    tp.draw_sample(size)
-
-
-@sample.command()
-@click.option("--out", default=None, help="Provide a filename for the output file")
-@click.argument("size", type=click.INT)
-def draw_from_gamelist(out, size):
-    """
-    Draws a random sample from the gamelist of SIZE.
-
-    It uses the random.choices() function of python to draw a random sample
-    of size SIZE from all games in the gamelist.
-
-    Can be given a special
-    """
-    print(f"Drawing sample of size {size} from gamelist")
-    outfilename = tp.draw_gamelist_sample(size, out)
-    print(f"File location: {outfilename}")
+    for name, dataset in cfg.datasets.items():
+        if Path(dataset).exists():
+            print(f"\t- [{name}] {dataset}")
+            print_last_prov_entry(dataset)
 
 
 #
@@ -77,6 +45,9 @@ def draw_from_gamelist(out, size):
 
 @cli.group()
 def gamelist():
+    """
+    Gamelist generation by sample, query or company.
+    """
     pass
 
 
@@ -84,7 +55,16 @@ def gamelist():
 @click.option("--query", "-q", default=None)
 @click.option("--company", "-c", default=None)
 def build(query, company):
-    tp.build_gamelist(query, company)
+    """
+    Builds a gamelist by fetching data from mobygames according
+    to the given query and/or company.
+    """
+    print("Building gamelist...")
+    outfilename = build_gamelist(
+        query,
+        company,
+    )
+    print(f"File saved to: {outfilename}")
 
 
 @gamelist.command()
@@ -94,9 +74,23 @@ def update(force):
     build_import_dataset()
 
 
-#
-# dataset commands
-#
+@gamelist.command()
+@click.argument("size", type=click.INT)
+def sample(size):
+    """
+    Builds a gamelist by drawing a random sample of SIZE from mobygames.
+
+    It uses the random.choices() function of python to draw a random sample
+    of size SIZE from all mobygames_ids. I.e. every mobygames ID has the same
+    probability to appear in the sample.
+    """
+    print(f"Drawing sample of size {size}")
+    outfilename = draw_sample(
+        size,
+        cfg.daft,
+        cfg.gamelist_file
+    )
+    print(f"Done. File saved to: {outfilename}")
 
 
 @cli.group()
@@ -108,13 +102,40 @@ def dataset():
 
 
 @dataset.command()
+@click.option("--out", default=None, help="Provide a filename for the output file")
+@click.argument("size", type=click.INT)
+def sample(out, size):
+    """
+    Draws a random sample from the gamelist of SIZE.
+
+    It uses the random.choices() function of python to draw a random sample
+    of size SIZE from all games in the gamelist.
+
+    Can be given a special
+    """
+    print(f"Drawing sample of size {size} from gamelist")
+    if not out:
+        out = cfg.datasets["sample"]
+    outfilename = build_sample_dataset(
+        size,
+        out,
+        cfg.gamelist_file
+    )
+    print(f"File location: {outfilename}")
+
+
+@dataset.command()
 def games():
     """
     Build games dataset from gamelist file by adding companies and links from
     mobygames.
     """
     print("Building games dataset...")
-    outfilename = build_games_dataset()
+    outfilename = build_games_dataset(
+        cfg.datasets["games"],
+        cfg.gamelist_file,
+        cfg.daft
+    )
     print(f"File saved to: {outfilename}")
 
 
@@ -135,9 +156,15 @@ def releases(force):
 
 
 @dataset.command()
-@click.option("--force/--no-force", default=False)
-def companies(force):
-    tp.CompanyDatasetBuilder()
+def companies():
+    print("Building companies dataset...")
+    outfilename = build_companies_dataset(
+        cfg.datasets["companies"],
+        cfg.datasets["games"],
+        cfg.daft,
+    )
+    print(f"Done. File saved to {outfilename}")
+
 
 
 #
@@ -178,8 +205,8 @@ def staff_heatmap(n, output_format):
     """
     Build a heatmap showing involment of persons across games.
     """
-    tp.build_staff_heatmap(n, output_format)
-
+    print("Building staff heatmap...")
+    StaffHeatmap(n, output_format)
 
 @vis.command()
 def credits_network():
