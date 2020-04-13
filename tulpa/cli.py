@@ -9,7 +9,7 @@ from .datasets.releases_dataset import build_releases_dataset
 from .datasets.sample_dataset import build_sample_dataset
 from .gamelist import draw_sample, build_gamelist
 from pathlib import Path
-from .utils import print_last_prov_entry
+from .utils import initialize, print_last_prov_entry
 from .visualizations.credits_network import CreditsNetwork
 from .visualizations.games_data_table import GamesDataTableBuilder
 from .visualizations.release_timeline import build_release_timeline
@@ -24,6 +24,18 @@ def cli():
     tulpa - Build visualizations and analysis for a list of video games.
     """
     pass
+
+@cli.command()
+def init():
+    """
+    Initialize tulpa in the current working directory.
+    """
+    print("Initializing tulpa...")
+    try:
+        this_dir = initialize(cfg.dirs)
+    except RuntimeError as e:
+        sys.exit(e)
+    print(f"Initialized tulpa project {cfg.project_name}")
 
 
 @cli.command()

@@ -1,6 +1,16 @@
 import json
 import yaml
+
 from provit import Provenance
+
+def initialize(dirs):
+    for path in dirs.values():
+        try:
+            path.mkdir(parents=True, exist_ok=True)
+        except FileExistsError:
+            raise RuntimeError(
+                f"{path} exists. It is a file, but needs to be a directory of the same name"
+            )
 
 
 def save_json(data, outfilename):
