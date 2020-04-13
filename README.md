@@ -11,52 +11,52 @@ to build, visualize and inspect company networks.
 * Python 3.7
 * [unified api](https://git.sc.uni-leipzig.de/ubl/diggr/infrastructure/unifiedapi)
 
-## Setup
+## Prerequisites
 
-Clone repository and install the package.
+It is recommended to install *tulpa* in a virtual Python environment such as
+Pipenv, virtualenv, or venv.
+
+*tulpa* requires access to the [unified api](https://git.sc.uni-leipzig.de/ubl/diggr/infrastructure/unifiedapi), the correct address needs to be specified in the `settings.py` file. In order to use the games-data-table command, lemongrab needs to be installed in the same virtual environment.
+
+## Installation
+
+Clone the repository.
 
 ```zsh
 $ git clone https://git.sc.uni-leipzig.de/ubl/diggr/general/tulpa
-$ pip install ./tulpa
+$ cd tulpa
 ```
 
-## Dataset Creation
-
-This chapter is a short introduction into the arguments, configuration files
-and possible use cases for tulpa.
-
-### Project directory
-
-*tulpa* requires project directory to run on. If you don't have one, create 
-a new directory on your filesystem and run the `init` command from within.
+Open *tulpa/settings.py* with an editor of your choice and edit the value
+of *DIGGR_API* to the address of your instance of the *UnifiedAPI*. Save the file
+and install tulpa.
 
 ```zsh
-$ mkdir new_project
-$ cd new_project && tulpa init
+$ pip install .
 ```
 
-This command generates a `config.yml` file as well as the directories for the 
-datasets and visualizations. Feel free to customize the `config.yml` to your
-needs.
+## Initial setup / Create a project
 
-### Configuration file  `config.yml`
+Create a folder and initialize tulpa.
 
-*tulpa* requires access to the [unified api](https://git.sc.uni-leipzig.de/ubl/diggr/infrastructure/unifiedapi),
-the correct address needs to be specified in the `config.yml` along with the 
-project name.
-In order to use the games-data-table command, the path to your lemongrab directory is needed.
-
-```yaml
-daft: 'http://127.0.0.1:6660'
-project_name: FromSoftware
-lemongrab_dir: ''
+```zsh
+$ mkdir testproject && cd testproject
+$ tulpa init
 ```
 
-### Build a gamelist
+> Note: lemongrab can be initialized alongside in the same directory!
 
-The following command creates a yaml file contianing all games in the project. 
-It is mandatory to create this list first in order to be able to build the other 
+This will create various directories. You are now ready to build or import a gamelist. 
+
+## Start / Build a gamelist
+
+The base dataset tulpa uses is a gamelist. A gamelist can be created from 
+withing tulpa in two ways, either by fetching matching entries (query or company)
+from mobygames and build a dataset therefrom, or by random sampling mobygames.
+It is mandatory to create a gamliest in order to be able to build the other 
 datasets and visualizations.
+
+### Build Gamelist
 
 ```zsh
 $ tulpa gamelist build -q "final fantasy"
@@ -67,6 +67,17 @@ Options:
 
 * `-q`  Include all games with this term in the title
 * `-c` Include all games where this company was part of the production
+
+### Sample Gamelist
+
+The second option is to create a gamelist, by ranomly sampling mobygames. Just give
+a sample size. The following command will create a sample with 100 entries. 
+
+```zsh
+$ tulpa gamelist sample 100
+```
+
+### Gamelist File
 
 The resulting yaml file has a name and links for each game entry. The following
 metadata ressources are used:
@@ -87,6 +98,12 @@ The Legend of Zelda:
   mobygames:
   - legend-of-zelda
 ```
+
+
+## Dataset Creation
+
+This chapter is a short introduction into the arguments, configuration files
+and possible use cases for tulpa.
 
 ### Build a games dataset
 
@@ -125,7 +142,7 @@ following filename template: `<project_name>_games.json`.
 
 With this games dataset you can now create the other datasets and visualizations.
 
-### Build release dataset
+### Build a releases dataset
 
 ```zsh
 $ tulpa dataset releases
@@ -134,7 +151,7 @@ $ tulpa dataset releases
 Generates a dataset containing the releases of the games dataset in various regions 
 (based on GameFAQs data).
 
-### Build a company dataset
+### Build a companies dataset
 
 To generate all available company information from previously generated yaml file for each game use the following command.
 
@@ -169,6 +186,20 @@ Result might look like:
 }
 ```
 
+### Draw a sample dataset
+
+This feature draws a random sample of variable size from the gamelist.
+A uniformly random sample from all games in the gamelist file is created.
+The random.choices() function of python is used to draw the uniformly 
+random samples of size SIZE. With either option all entries in the gamelist
+have the same probability to appear in the sample.
+
+```zsh
+$ tulpa dataset sample 100
+```
+
+will draw a random sample with 100 entries from the gamelist.
+
 ### Show all datasets
 
 To show all generated datsets inside the project folder use:
@@ -179,37 +210,6 @@ $ tulpa datasets
 
 You will get the location, name, date and time of the generated datasets.
 
-### Draw a sample
-
-Tulpa has a feature to draw a random sample of variable size with respect
-to different datasets. The first option is (starting from da blank project)
-to draw a random sample from mobygames. This will create a gamelist file
-containing as many games as you would like. 
-
-The second option is, to sample an already existing gamelist file. This 
-option will also draw a uniformly random sample from all games in the 
-gamelist file. 
-
-Both functions use the random.choices() function of python to draw the
-uniformly random samples of size SIZE. With either option all entries (
-either every mobygames ID or every game in the gamelist) has the same 
-probability to appear in the sample.
-
-
-The command 
-
-```zsh
-$ tulpa sample draw 100
-```
-
-will draw a random sample with 100 entries from all mobygames IDs and create 
-a gamelist. Whereas 
-
-```zsh
-$ tulpa sample draw-from-gamelist 100
-```
-
-uses the projects existing gamelist to draw a random sample of 100 entries from.
 
 ## Visualizations
 
@@ -271,7 +271,7 @@ $ tulpa vis games-data-table
 ```
 
 ## Copyright
-- 2019, Universitätsbibliothek Leipzig <info@ub.uni-leipzig.de>
+- 2019-2020, Universitätsbibliothek Leipzig <info@ub.uni-leipzig.de>
 
 ## Authors
 - P. Mühleder <muehleder@ub.uni-leipzig.de>
