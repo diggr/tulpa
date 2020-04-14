@@ -11,7 +11,7 @@ from .gamelist import draw_sample, build_gamelist
 from pathlib import Path
 from .utils import initialize, print_last_prov_entry
 from .visualizations.credits_network import build_credits_network
-from .visualizations.games_data_table import GamesDataTableBuilder
+from .visualizations.games_data_table import build_games_data_table
 from .visualizations.release_timeline import build_release_timeline
 from .visualizations.staff_heatmap import build_staff_heatmap
 from .visualizations.staff_size import build_staff_size_chart
@@ -25,6 +25,7 @@ def cli():
     tulpa - Build visualizations and analysis for a list of video games.
     """
     pass
+
 
 @cli.command()
 def init():
@@ -73,10 +74,7 @@ def build(query, company):
     to the given query and/or company.
     """
     print("Building gamelist...")
-    outfilename = build_gamelist(
-        query,
-        company,
-    )
+    outfilename = build_gamelist(query, company,)
     print(f"File saved to: {outfilename}")
 
 
@@ -86,9 +84,7 @@ def update(force):
     print("Updating gamelist...")
     try:
         outfilename = build_import_dataset(
-            cfg.datasets["games"],
-            cfg.gamelist_file,
-            force
+            cfg.datasets["games"], cfg.gamelist_file, force
         )
     except FileExistsError as e:
         sys.exit(e)
@@ -106,11 +102,7 @@ def sample(size):
     probability to appear in the sample.
     """
     print(f"Drawing sample of size {size}")
-    outfilename = draw_sample(
-        size,
-        cfg.daft,
-        cfg.gamelist_file
-    )
+    outfilename = draw_sample(size, cfg.daft, cfg.gamelist_file)
     print(f"Done. File saved to: {outfilename}")
 
 
@@ -137,11 +129,7 @@ def sample(out, size):
     print(f"Drawing sample of size {size} from gamelist")
     if not out:
         out = cfg.datasets["sample"]
-    outfilename = build_sample_dataset(
-        size,
-        out,
-        cfg.gamelist_file
-    )
+    outfilename = build_sample_dataset(size, out, cfg.gamelist_file)
     print(f"File location: {outfilename}")
 
 
@@ -153,9 +141,7 @@ def games():
     """
     print("Building games dataset...")
     outfilename = build_games_dataset(
-        cfg.datasets["games"],
-        cfg.gamelist_file,
-        cfg.daft
+        cfg.datasets["games"], cfg.gamelist_file, cfg.daft
     )
     print(f"File saved to: {outfilename}")
 
@@ -180,12 +166,9 @@ def releases(force):
 def companies():
     print("Building companies dataset...")
     outfilename = build_companies_dataset(
-        cfg.datasets["companies"],
-        cfg.datasets["games"],
-        cfg.daft,
+        cfg.datasets["companies"], cfg.datasets["games"], cfg.daft,
     )
     print(f"Done. File saved to {outfilename}")
-
 
 
 #
@@ -235,7 +218,7 @@ def staff_heatmap(n, output_format, title):
         cfg.dirs["staff_heatmap"],
         n,
         output_format,
-        title
+        title,
     )
     print(f"Done. File saved to {outfilename}")
 
@@ -247,10 +230,7 @@ def credits_network():
     """
     print("Building credits network...")
     outfilename, missing_credits = build_credits_network(
-        cfg.datasets["games"],
-        cfg.daft,
-        cfg.project_name,
-        cfg.dirs["credits_network"],
+        cfg.datasets["games"], cfg.daft, cfg.project_name, cfg.dirs["credits_network"],
     )
     if missing_credits:
         for game in missing_credits:
@@ -265,19 +245,28 @@ def staff_size(output_format, title):
     """
     Visualize the development of the staff size size over time.
     """
-    print("Building credits network...")
+    print("Building staff size chart...")
     outfilename = build_staff_size_chart(
         cfg.datasets["games"],
         cfg.daft,
         cfg.project_name,
         cfg.dirs["staff_size_chart"],
         output_format,
-        title
+        title,
     )
     print(f"Done. File saved to {outfilename}")
 
 
 @vis.command()
 def games_data_table():
-    print("Building GamesDataTable...")
-    GamesDataTableBuilder()
+    print("Building games data table...")
+    try:
+        outfilename = build_games_data_table(
+            cfg.datasets["games"],
+            cfg.datasets["releases"],
+            cfg.project_name,
+            cfg.dirs["games_data_table"],
+        )
+    except RuntimeError as e:
+        sys.exit(e)
+    print(f"Done. File saved to {outfilename}")

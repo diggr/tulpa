@@ -1,33 +1,38 @@
-import requests
-import json
-import os
 import pandas as pd
-from collections import defaultdict
-from jinja2 import Environment, FileSystemLoader
-from ..config import get_config
 
+from ..datasets.builder import Builder
+from collections import defaultdict
+from ..utils import open_json
+
+LEMONGRAB_AVAILABLE = False
 try:
-    import lemongrab
+    from lemongrab.utils import get_datasets as get_lemongrab_datasets
 
     LEMONGRAB_AVAILABLE = True
 except ImportError:
-    LEMONGRAB_AVAILABE = False
+    pass
 
 
-class GamesDataTableBuilder:
-    def __init__(self):
-        self.cf = get_config()
+class GamesDataTableBuilder(Builder):
 
-        with open(self.cf.datasets["games"]) as f:
-            self.gamelist = json.load(f)
+    PROVIT_ACTIVITY = "build_games_data_table"
+    PROVIT_DESCRIPTION = "Building the games data table using lemongrab."
+    GAMES_DATA_TABLE_FILENAME = "{project_name}_games_data_table.csv"
 
+    def __init__(self, games_dataset_path, releases_dataset_path):
+        self.games = open_json(games_dataset_path)
+        self.releases = open_json(releases_dataset_path)
+
+        super().__init__([games_dataset_path, releases_dataset_path], "wikidata")
+
+    def build_dataset(self, outfilename):
         if not LEMONGRAB_AVAILABLE:
             raise RuntimeError("lemongrab is required to use this function!")
         self._load_lemongrab_datasets()
 
         dataset = []
 
-        for title, links in self.gamelist.items():
+        for title, links in self.games.items():
             entry = {}
             entry["title"] = title
             data = self._get_company_data(links["mobygames"])
@@ -44,21 +49,22 @@ class GamesDataTableBuilder:
                 entry[release["region"]] = release["count"]
                 all_releases += release["count"]
             entry["n_releases"] = all_releases
-            print(data["platforms"])
             entry["platforms"] = ",".join(sorted(data["platforms"]))
 
             dataset.append(entry)
 
         df = pd.DataFrame(dataset)
-        # df = df.fillna(0)
-        filepath = self.cf.dirs["games_data_table"] / "{}_data_table.csv".format(
-            self.cf.project_name
-        )
-        df.to_csv(filepath)
+        df.to_csv(outfilename)
+        return outfilename
 
     def _load_lemongrab_datasets(self):
 
-        dataset, wiki, id_2_slug = lemongrab.utils.get_datasets()
+        try:
+            dataset, id_2_slug, wiki = get_lemongrab_datasets()
+        except FileNotFoundError:
+            raise RuntimeError(
+                "lemongrab must be initialized in this directory and datasets must built before this command can be run."
+            )
 
         id_2_slug_map = {x["company_id"]: x["slug"] for x in id_2_slug}
         wiki_map = {x["mobygames_slug"]: x for x in wiki}
@@ -90,11 +96,23 @@ class GamesDataTableBuilder:
         return {"platforms": list(platforms), "companies": companies_dataset}
 
     def get_release_data(self, game_id):
-        with open(self.cf.datasets["releases"]) as f:
-            releases = json.load(f)
 
         dataset = []
-        for region, r in releases[game_id].items():
+        for region, r in self.releases[game_id].items():
             dataset.append({"region": region + "_releases", "count": len(r)})
 
         return dataset
+
+
+def build_games_data_table(
+    games_dataset_path, releases_dataset_path, project_name, games_data_table_path
+):
+    """
+    Games Data Table Factory
+    """
+    gdtb = GamesDataTableBuilder(games_dataset_path, releases_dataset_path)
+    outfilename = games_data_table_path / gdtb.GAMES_DATA_TABLE_FILENAME.format(
+        project_name=project_name
+    )
+    outfilename = gdtb.build(outfilename)
+    return outfilename

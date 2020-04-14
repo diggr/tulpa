@@ -7,6 +7,7 @@ from ..datasets.builder import Builder
 from itertools import combinations
 from ..utils import open_json
 
+
 class CreditsNetworkBuilder(Builder):
 
     PROVIT_ACTIVITY = "build_credits_network"
@@ -81,15 +82,11 @@ class CreditsNetworkBuilder(Builder):
 
 
 def build_credits_network(
-        games_dataset_path,
-        diggr_api_url,
-        project_name,
-        credits_network_path,
-    ):
+    games_dataset_path, diggr_api_url, project_name, credits_network_path,
+):
     cnb = CreditsNetworkBuilder(games_dataset_path, diggr_api_url)
     outfilename = credits_network_path / cnb.NETWORK_FILENAME.format(
-        project_name=project_name,
-        timestamp=datetime.datetime.now().isoformat()
-        )
+        project_name=project_name, timestamp=datetime.datetime.now().isoformat()
+    )
     outfilename = cnb.build(outfilename)
     return outfilename, cnb.missing_credits

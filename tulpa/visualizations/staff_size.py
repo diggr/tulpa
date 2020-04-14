@@ -16,15 +16,18 @@ class StaffSizeChartBuilder(Builder):
 
     PROVIT_ACTIVITY = "build_staff_size"
     PROVIT_DESCRIPTION = "Building staff size chart."
-    STAFF_SIZE_CHART_FILENAME = "{project_name}_staff_size_chart_{timestamp}.{out_format}"
+    STAFF_SIZE_CHART_FILENAME = (
+        "{project_name}_staff_size_chart_{timestamp}.{out_format}"
+    )
 
-    def __init__(self, games_dataset_path, diggr_api_url, title="Staff Size Development"):
+    def __init__(
+        self, games_dataset_path, diggr_api_url, title="Staff Size Development"
+    ):
         self.title = title
         self.games = open_json(games_dataset_path)
         self.daft = diggr_api_url + "/mobygames/{id}"
 
         super().__init__([games_dataset_path], "mobygames")
-
 
     def build_dataset(self, outfilename):
         dataset = []
@@ -74,27 +77,22 @@ class StaffSizeChartBuilder(Builder):
 
         return outfilename
 
+
 def build_staff_size_chart(
-        games_dataset_path,
-        diggr_api_url,
-        project_name,
-        staff_size_chart_path,
-        out_format,
-        title="Staff Size Development"
-    ):
+    games_dataset_path,
+    diggr_api_url,
+    project_name,
+    staff_size_chart_path,
+    out_format,
+    title="Staff Size Development",
+):
     """
     Staff Size Chart Factory
     """
     sscb = StaffSizeChartBuilder(games_dataset_path, diggr_api_url)
-    timestamp = re.sub(
-        r"[ :.]",
-        "_",
-        datetime.datetime.now().isoformat()
-    )
-    outfilename = sscb.STAFF_SIZE_CHART_FILENAME.format(
-        project_name=project_name,
-        timestamp=timestamp,
-        out_format=out_format
+    timestamp = re.sub(r"[ :.]", "_", datetime.datetime.now().isoformat())
+    outfilename = staff_size_chart_path / sscb.STAFF_SIZE_CHART_FILENAME.format(
+        project_name=project_name, timestamp=timestamp, out_format=out_format
     )
     outfilename = sscb.build(outfilename)
     return outfilename

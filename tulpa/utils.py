@@ -3,6 +3,7 @@ import yaml
 
 from provit import Provenance
 
+
 def initialize(dirs):
     for path in dirs.values():
         try:

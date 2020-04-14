@@ -11,13 +11,14 @@ from ..datasets.builder import Builder
 from collections import defaultdict, Counter
 from ..utils import open_json
 
+
 class StaffHeatmapBuilder(Builder):
 
     PROVIT_ACTIVITY = "build_staff_heatmap"
     PROVIT_DESCRIPTION = (
         "Heatmap of the top {n} staffmembers working on most games in the dataset."
     )
-    HEATMAP_FILENAME= "{project_name}_staff_heatmap_topn_{n}.{out_format}"
+    HEATMAP_FILENAME = "{project_name}_staff_heatmap_topn_{n}.{out_format}"
 
     def __init__(self, games_dataset_path, diggr_api_url, n, title):
         self.games = open_json(games_dataset_path)
@@ -26,7 +27,6 @@ class StaffHeatmapBuilder(Builder):
         self.daft = diggr_api_url + "/mobygames/slug/{slug}"
 
         super().__init__([games_dataset_path], "mobygames")
-
 
     def find_vips(self):
         vips = Counter()
@@ -115,24 +115,20 @@ class StaffHeatmapBuilder(Builder):
 
 
 def build_staff_heatmap(
-        games_dataset_path,
-        diggr_api_url,
-        project_name,
-        staff_heatmap_path,
-        n=30,
-        out_format="png",
-        title="Staff Heatmap",
-    ):
-        """
+    games_dataset_path,
+    diggr_api_url,
+    project_name,
+    staff_heatmap_path,
+    n=30,
+    out_format="png",
+    title="Staff Heatmap",
+):
+    """
         Staff Heatmap Factory
         """
-        shb = StaffHeatmapBuilder(games_dataset_path, diggr_api_url, n, title)
-        outfilename = staff_heatmap_path / shb.HEATMAP_FILENAME.format(
-            project_name = project_name,
-            n = n,
-            out_format = out_format
-        )
-        outfilename = shb.build(outfilename)
-        return outfilename
-
-
+    shb = StaffHeatmapBuilder(games_dataset_path, diggr_api_url, n, title)
+    outfilename = staff_heatmap_path / shb.HEATMAP_FILENAME.format(
+        project_name=project_name, n=n, out_format=out_format
+    )
+    outfilename = shb.build(outfilename)
+    return outfilename

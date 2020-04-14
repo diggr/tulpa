@@ -9,7 +9,6 @@ MOBYGAMES = "mobygames"
 
 
 class GamelistGenerator:
-
     def __init__(self, daft_url, gamelist_filename, mobygames=MOBYGAMES):
         self.daft_url = daft_url
         self.gamelist_filename = gamelist_filename
@@ -166,4 +165,3 @@ def build_gamelist(query, company, diggr_api_url, gamelist_filename):
     gg = GamelistGenerator(diggr_api_url, gamelist_filename)
     gg.build_by_query_or_company(query, company)
     return gg.gamelist_filename
-

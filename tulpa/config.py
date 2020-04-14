@@ -32,8 +32,7 @@ class Config:
         }
 
         self.datasets = {
-            "sample": self.dirs["sample_dataset"]
-            / f"{self.project_name}_sample.json",
+            "sample": self.dirs["sample_dataset"] / f"{self.project_name}_sample.json",
             "games": self.dirs["games_dataset"] / f"{self.project_name}_games.json",
             "companies": self.dirs["companies_dataset"]
             / f"{self.project_name}_companies.json",
