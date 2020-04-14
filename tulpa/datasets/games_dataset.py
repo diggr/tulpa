@@ -1,7 +1,3 @@
-import json
-import yaml
-import os
-import random
 import requests
 
 from .builder import Builder
@@ -11,7 +7,9 @@ from ..utils import print_last_prov_entry, open_yaml, open_json, save_json
 class GamesDatasetBuilder(Builder):
 
     PROVIT_ACTIVITY = "build_games_dataset"
-    PROVIT_DESCRIPTION = "Contains all mobygames links and for the games in the gamelist "
+    PROVIT_DESCRIPTION = (
+        "Contains all mobygames links and for the games in the gamelist "
+    )
 
     def __init__(self, gamelist_path, diggr_api_url):
         self.diggr_api = diggr_api_url + "/mobygames/slug/{slug}"
@@ -94,4 +92,4 @@ def check_games_dataset(games_dataset_path):
     for title in no_ids["gamefaqs"]:
         print("\t\t - {}".format(title))
 
-    print_last_prov_entry(dataset_file)
+    print_last_prov_entry(games_dataset_path)

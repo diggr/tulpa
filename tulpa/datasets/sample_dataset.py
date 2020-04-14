@@ -3,6 +3,7 @@ import random
 from .builder import Builder
 from ..utils import save_json, open_yaml
 
+
 class SampleDatasetBuilder(Builder):
     """
     Draw a random sample from the tulpa gamelist file.

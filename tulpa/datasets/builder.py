@@ -2,6 +2,7 @@ from abc import abstractmethod
 from provit import Provenance
 from ..config import PROVIT_AGENT
 
+
 class Builder:
     """
     This class mainly provides a wrapper around a build_dataset command.

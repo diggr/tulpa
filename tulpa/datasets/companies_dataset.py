@@ -1,9 +1,8 @@
-import json
 import requests
 
 from .builder import Builder
-from collections import defaultdict
 from ..utils import open_json, save_json
+
 
 class CompaniesDatasetBuilder(Builder):
 
@@ -25,7 +24,7 @@ class CompaniesDatasetBuilder(Builder):
         rsp = requests.get(self.daft.format(id=id_))
         data = rsp.json()
 
-        if not "entry" in data:
+        if "entry" not in data:
             return None
         else:
             return data["entry"]
@@ -59,6 +58,7 @@ class CompaniesDatasetBuilder(Builder):
 
         return outfilename
 
+
 def build_companies_dataset(companies_dataset_path, games_dataset_path, diggr_api_url):
     """
     Companies Dataset Factory
@@ -66,4 +66,3 @@ def build_companies_dataset(companies_dataset_path, games_dataset_path, diggr_ap
     cdb = CompaniesDatasetBuilder(diggr_api_url, games_dataset_path)
     outfilename = cdb.build(companies_dataset_path)
     return outfilename
-
