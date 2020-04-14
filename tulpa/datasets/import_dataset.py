@@ -1,16 +1,11 @@
 import json
 import yaml
-from ..config import get_config
-from ..utils import print_last_prov_entry
+
+from pathlib import Path
+from ..utils import open_json, save_yaml, print_last_prov_entry
 
 
-def build_import_dataset():
-
-    cf = get_config()
-    dataset_file = cf.datasets["games"]
-
-    with open(dataset_file) as f:
-        games = json.load(f)
-
-    with open(cf.gamelist_file, "w") as f:
-        yaml.dump(games, f, default_flow_style=False)
+def build_import_dataset(games_dataset_path, gamelist_file, force=False):
+    if Path(gamelist_file).exists() and not force:
+        raise FileExistsError("Gamelist file exists. Use --force to overwrite.")
+    return save_yaml(open_json(games_dataset_path), gamelist_file)
