@@ -20,6 +20,7 @@ def save_json(data, outfilename):
     """
     with open(outfilename, "w") as outfile:
         json.dump(data, outfile, indent=4)
+    return outfilename
 
 
 def open_json(infilename):
@@ -46,7 +47,8 @@ def save_yaml(data, outfilename):
     Accepts data and filename and returns the filename.
     """
     with open(outfilename, "w") as outfile:
-        return yaml.dump(data, outfile, default_flow_style=False)
+        yaml.dump(data, outfile, default_flow_style=False)
+    return outfilename
 
 
 def prov_slug(uri):

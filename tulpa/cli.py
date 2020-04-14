@@ -83,7 +83,15 @@ def build(query, company):
 @click.option("--force/--no-force", default=False)
 def update(force):
     print("Updating gamelist...")
-    build_import_dataset()
+    try:
+        outfilename = build_import_dataset(
+            cfg.datasets["games"],
+            cfg.gamelist_file,
+            force
+        )
+    except FileExistsError as e:
+        sys.exit(e)
+    print(f"Done. Gamelist saved to: {outfilename}")
 
 
 @gamelist.command()
