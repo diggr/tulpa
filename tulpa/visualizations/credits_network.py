@@ -1,23 +1,22 @@
+import datetime
 import json
 import requests
 import networkx as nx
-from datetime import datetime
+
+from ..datasets.builder import Builder
 from itertools import combinations
-from provit import Provenance
-from ..config import get_config, PROVIT_AGENT
+from ..utils import open_json
 
-PROVIT_ACTIVITY = "build_credit_network"
-PROVIT_DESCRIPTION = "Network of games connected by overlapping development staff."
+class CreditsNetworkBuilder(Builder):
 
-NETWORK_FILE = "{project_name}_credits_network_{timestamp}.graphml"
+    PROVIT_ACTIVITY = "build_credits_network"
+    PROVIT_DESCRIPTION = "Network of games connected by overlapping development staff."
+    NETWORK_FILENAME = "{project_name}_credits_network_{timestamp}.graphml"
 
-
-class CreditsNetwork:
-    def __init__(self):
-        self.cf = get_config()
-        self.daft = self.cf.daft + "/mobygames/slug/{slug}"
-
-        self.build_network()
+    def __init__(self, games_dataset_path, diggr_api_url):
+        self.games = open_json(games_dataset_path)
+        self.daft = diggr_api_url + "/mobygames/slug/{slug}"
+        super().__init__([games_dataset_path], "mobygames")
 
     def _get_game_info(self, slug):
         rsp = requests.get(self.daft.format(slug=slug))
@@ -47,23 +46,17 @@ class CreditsNetwork:
 
         return set([x for x in devs if x])
 
-    def build_network(self):
-
-        cf = get_config()
-
-        daft_url = cf.daft + "/mobygames/slug/{slug}"
-
-        with open(cf.datasets["games"]) as f:
-            games = json.load(f)
+    def build_dataset(self, outfilename):
 
         # build dataset
         dataset = {}
-        for game, links in games.items():
+        self.missing_credits = []
+        for game, links in self.games.items():
             devs = self._fetch_credits(links["mobygames"])
             if len(devs) > 0:
                 dataset[game] = devs
             else:
-                print("no credits available for ", game)
+                self.missing_credits.append(game)
 
         # build graph
         g2 = nx.Graph()
@@ -83,23 +76,20 @@ class CreditsNetwork:
             if sim2 > 0:
                 g2.add_edge(s1, s2, weight=sim2)
 
-        # save
-        filename = NETWORK_FILE.format(
-            project_name=self.cf.project_name, timestamp=datetime.now().isoformat()
+        nx.write_graphml(g2, outfilename)
+        return outfilename
+
+
+def build_credits_network(
+        games_dataset_path,
+        diggr_api_url,
+        project_name,
+        credits_network_path,
+    ):
+    cnb = CreditsNetworkBuilder(games_dataset_path, diggr_api_url)
+    outfilename = credits_network_path / cnb.NETWORK_FILENAME.format(
+        project_name=project_name,
+        timestamp=datetime.datetime.now().isoformat()
         )
-
-        filepath = self.cf.dirs["credits_network"] / filename
-
-        print("\nSave visualization ...")
-        print("File location: {}".format(filepath))
-        nx.write_graphml(g2, filepath)
-
-        prov = Provenance(filepath)
-        prov.add(
-            agents=[PROVIT_AGENT],
-            activity=PROVIT_ACTIVITY,
-            description=PROVIT_DESCRIPTION,
-        )
-        prov.add_sources([self.cf.datasets["games"]])
-        prov.add_primary_source("mobygames")
-        prov.save()
+    outfilename = cnb.build(outfilename)
+    return outfilename, cnb.missing_credits

@@ -10,7 +10,7 @@ from .datasets.sample_dataset import build_sample_dataset
 from .gamelist import draw_sample, build_gamelist
 from pathlib import Path
 from .utils import initialize, print_last_prov_entry
-from .visualizations.credits_network import CreditsNetwork
+from .visualizations.credits_network import build_credits_network
 from .visualizations.games_data_table import GamesDataTableBuilder
 from .visualizations.release_timeline import build_release_timeline
 from .visualizations.staff_size import StaffSizeChart
@@ -230,7 +230,17 @@ def staff_heatmap(n, output_format):
 
 @vis.command()
 def credits_network():
-    CreditsNetwork()
+    print("Building crecits network...")
+    outfilename, missing_credits = build_credits_network(
+        cfg.datasets["games"],
+        cfg.daft,
+        cfg.project_name,
+        cfg.dirs["credits_network"],
+    )
+    if missing_credits:
+        for game in missing_credits:
+            print(f"\tNo credits available for {game}")
+    print(f"Done. File saved to {outfilename}")
 
 
 @vis.command()
