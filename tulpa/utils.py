@@ -40,6 +40,15 @@ def open_yaml(infilename):
         return yaml.safe_load(infile)
 
 
+def save_yaml(data, outfilename):
+    """
+    Wrapper around yaml.dump().
+    Accepts data and filename and returns the filename.
+    """
+    with open(outfilename, "w") as outfile:
+        return yaml.dump(data, outfile, default_flow_style=False)
+
+
 def prov_slug(uri):
     return uri.split("/")[-1]
 
