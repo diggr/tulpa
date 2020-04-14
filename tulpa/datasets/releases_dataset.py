@@ -2,6 +2,7 @@ import requests
 
 from .builder import Builder
 from collections import defaultdict
+from diggrtoolbox.unified_api import DiggrAPI
 from ..utils import open_json, save_json
 
 
@@ -12,22 +13,16 @@ class ReleasesDatasetBuilder(Builder):
         "Contains all available release information from GameFAQS for each game."
     )
 
-    def __init__(self, games_dataset_path, diggr_api):
+    def __init__(self, games_dataset_path, diggr_api_url):
         self.games = open_json(games_dataset_path)
-        self.daft = diggr_api + "/gamefaqs/{id}"
+        self.diggr_api = DiggrAPI(diggr_api_url, get_on_item=True).dataset("gamefaqs")
         super().__init__([games_dataset_path], "gamefaqs")
 
     def _get_gamefaqs_data(self, id_):
         if not id_:
             return None
+        return self.diggr_api.item(id_)
 
-        rsp = requests.get(self.daft.format(id=id_.replace("/", "__")))
-        data = rsp.json()
-
-        if not "entry" in data:
-            return None
-        else:
-            return data["entry"]
 
     def build_dataset(self, outfilename):
 
