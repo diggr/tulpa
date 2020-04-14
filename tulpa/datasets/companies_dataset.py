@@ -1,12 +1,11 @@
 import json
 import requests
 
-from provit import Provenance
+from .builder import Builder
 from collections import defaultdict
-from ..config import PROVIT_AGENT
 from ..utils import open_json, save_json
 
-class CompaniesDatasetBuilder:
+class CompaniesDatasetBuilder(Builder):
 
     PROVIT_ACTIVITY = "build_companies_dataset"
     PROVIT_DESCRIPTION = (
@@ -17,6 +16,7 @@ class CompaniesDatasetBuilder:
 
         self.daft = diggr_api_url + "/mobygames/{id}/companies"
         self.games_dataset_path = games_dataset_path
+        super().__init__([games_dataset_path], "mobygames")
 
     def _get_company_data(self, id_):
         if not id_:
@@ -57,16 +57,6 @@ class CompaniesDatasetBuilder:
 
         save_json(dataset, outfilename)
 
-        prov = Provenance(outfilename, overwrite=True)
-        prov.add(
-            agents=[PROVIT_AGENT],
-            activity=self.PROVIT_ACTIVITY,
-            description=self.PROVIT_DESCRIPTION,
-        )
-        prov.add_sources([self.games_dataset_path])
-        prov.add_primary_source("mobygames")
-        prov.save()
-
         return outfilename
 
 def build_companies_dataset(companies_dataset_path, games_dataset_path, diggr_api_url):
@@ -74,6 +64,6 @@ def build_companies_dataset(companies_dataset_path, games_dataset_path, diggr_ap
     Companies Dataset Factory
     """
     cdb = CompaniesDatasetBuilder(diggr_api_url, games_dataset_path)
-    outfilename = cdb.build_dataset(companies_dataset_path)
+    outfilename = cdb.build(companies_dataset_path)
     return outfilename
 
