@@ -1,31 +1,32 @@
+import datetime
 import json
 import requests
 import numpy as np
 import matplotlib
+import re
 
 matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
-from provit import Provenance
+from ..datasets.builder import Builder
 from collections import defaultdict, Counter
-from ..config import get_config, PROVIT_AGENT
-
-PROVIT_ACTIVITY = "build_staff_size"
-PROVIT_DESCRIPTION = "Building staff size chart."
+from ..utils import open_json
 
 
-class StaffSizeChart:
-    def __init__(self, title="Staff Size Development"):
+class StaffSizeChartBuilder(Builder):
+
+    PROVIT_ACTIVITY = "build_staff_size"
+    PROVIT_DESCRIPTION = "Building staff size chart."
+    STAFF_SIZE_CHART_FILENAME = "{project_name}_staff_size_chart_{timestamp}.{out_format}"
+
+    def __init__(self, games_dataset_path, diggr_api_url, title="Staff Size Development"):
         self.title = title
+        self.games = open_json(games_dataset_path)
+        self.daft = diggr_api_url + "/mobygames/{id}"
 
-        self.cf = get_config()
-        self.daft = self.cf.daft + "/mobygames/{id}"
+        super().__init__([games_dataset_path], "mobygames")
 
-        with open(self.cf.datasets["games"]) as f:
-            self.games = json.load(f)
 
-        self.build_staff_size_chart()
-
-    def build_staff_size_chart(self):
+    def build_dataset(self, outfilename):
         dataset = []
 
         for title, links in self.games.items():
@@ -68,6 +69,32 @@ class StaffSizeChart:
         plt.setp(ax.xaxis.get_majorticklabels(), rotation=-45, ha="left")
         plt.gcf().subplots_adjust(bottom=0.3)
 
-        plt.show()
+        plt.tight_layout()
+        plt.savefig(outfilename)
 
-        print(dataset)
+        return outfilename
+
+def build_staff_size_chart(
+        games_dataset_path,
+        diggr_api_url,
+        project_name,
+        staff_size_chart_path,
+        out_format,
+        title="Staff Size Development"
+    ):
+    """
+    Staff Size Chart Factory
+    """
+    sscb = StaffSizeChartBuilder(games_dataset_path, diggr_api_url)
+    timestamp = re.sub(
+        r"[ :.]",
+        "_",
+        datetime.datetime.now().isoformat()
+    )
+    outfilename = sscb.STAFF_SIZE_CHART_FILENAME.format(
+        project_name=project_name,
+        timestamp=timestamp,
+        out_format=out_format
+    )
+    outfilename = sscb.build(outfilename)
+    return outfilename

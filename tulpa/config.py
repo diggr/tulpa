@@ -27,6 +27,7 @@ class Config:
             "credits_network": visualizations_dir / "credits_network",
             "release_timeline": visualizations_dir / "release_timeline",
             "staff_heatmap": visualizations_dir / "staff_heatmap",
+            "staff_size_chart": visualizations_dir / "staff_size_chart",
             "games_data_table": visualizations_dir / "games_data_table",
         }
 

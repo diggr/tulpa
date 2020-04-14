@@ -14,7 +14,7 @@ from .visualizations.credits_network import build_credits_network
 from .visualizations.games_data_table import GamesDataTableBuilder
 from .visualizations.release_timeline import build_release_timeline
 from .visualizations.staff_heatmap import build_staff_heatmap
-from .visualizations.staff_size import StaffSizeChart
+from .visualizations.staff_size import build_staff_size_chart
 
 cfg = get_config()
 
@@ -222,7 +222,7 @@ def release_timeline(title):
 @vis.command()
 @click.option("-n", default=30)
 @click.option("--output_format", "-o", default="png")
-@click.option("--title", default="Stafft Heatmap")
+@click.option("--title", default="Staff Heatmap")
 def staff_heatmap(n, output_format, title):
     """
     Build a heatmap showing involment of persons across games.
@@ -242,7 +242,10 @@ def staff_heatmap(n, output_format, title):
 
 @vis.command()
 def credits_network():
-    print("Building crecits network...")
+    """
+    Visualize similarities between the names mentioned in the credits of games.
+    """
+    print("Building credits network...")
     outfilename, missing_credits = build_credits_network(
         cfg.datasets["games"],
         cfg.daft,
@@ -256,8 +259,22 @@ def credits_network():
 
 
 @vis.command()
-def staff_size():
-    StaffSizeChart()
+@click.option("--output_format", "-o", default="png")
+@click.option("--title", default="Staff Size Chart")
+def staff_size(output_format, title):
+    """
+    Visualize the development of the staff size size over time.
+    """
+    print("Building credits network...")
+    outfilename = build_staff_size_chart(
+        cfg.datasets["games"],
+        cfg.daft,
+        cfg.project_name,
+        cfg.dirs["staff_size_chart"],
+        output_format,
+        title
+    )
+    print(f"Done. File saved to {outfilename}")
 
 
 @vis.command()
