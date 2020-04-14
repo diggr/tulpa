@@ -1,6 +1,7 @@
 import requests
 
 from .builder import Builder
+from diggrtoolbox.unified_api import DiggrAPI
 from ..utils import open_json, save_json
 
 
@@ -12,22 +13,14 @@ class CompaniesDatasetBuilder(Builder):
     )
 
     def __init__(self, diggr_api_url, games_dataset_path):
-
-        self.daft = diggr_api_url + "/mobygames/{id}/companies"
+        self.diggr_api = DiggrAPI(diggr_api_url, get_on_item=True).dataset("mobygames").filter("companies")
         self.games_dataset_path = games_dataset_path
         super().__init__([games_dataset_path], "mobygames")
 
     def _get_company_data(self, id_):
         if not id_:
             return None
-
-        rsp = requests.get(self.daft.format(id=id_))
-        data = rsp.json()
-
-        if "entry" not in data:
-            return None
-        else:
-            return data["entry"]
+        return self.diggr_api.item(id_)
 
     def _remove_duplicates(self, companies):
         done = []
