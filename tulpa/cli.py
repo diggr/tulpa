@@ -13,6 +13,7 @@ from .utils import initialize, print_last_prov_entry
 from .visualizations.credits_network import build_credits_network
 from .visualizations.games_data_table import GamesDataTableBuilder
 from .visualizations.release_timeline import build_release_timeline
+from .visualizations.staff_heatmap import build_staff_heatmap
 from .visualizations.staff_size import StaffSizeChart
 
 cfg = get_config()
@@ -207,7 +208,7 @@ def release_timeline(title):
     Show releases in chronological order
     """
     print("Building release timeline...")
-    release_timeline_filename = build_release_timeline(
+    outfilename = build_release_timeline(
         title,
         cfg.datasets["games"],
         cfg.datasets["releases"],
@@ -215,18 +216,29 @@ def release_timeline(title):
         cfg.project_name,
         cfg.dirs["release_timeline"],
     )
-    print(f"Done. File saved to {release_timeline_filename}")
+    print(f"Done. File saved to {outfilename}")
 
 
 @vis.command()
 @click.option("-n", default=30)
 @click.option("--output_format", "-o", default="png")
-def staff_heatmap(n, output_format):
+@click.option("--title", default="Stafft Heatmap")
+def staff_heatmap(n, output_format, title):
     """
     Build a heatmap showing involment of persons across games.
     """
     print("Building staff heatmap...")
-    StaffHeatmap(n, output_format)
+    outfilename = build_staff_heatmap(
+        cfg.datasets["games"],
+        cfg.daft,
+        cfg.project_name,
+        cfg.dirs["staff_heatmap"],
+        n,
+        output_format,
+        title
+    )
+    print(f"Done. File saved to {outfilename}")
+
 
 @vis.command()
 def credits_network():

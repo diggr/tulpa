@@ -7,30 +7,26 @@ import matplotlib
 
 matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
-from provit import Provenance
+from ..datasets.builder import Builder
 from collections import defaultdict, Counter
-from ..config import get_config, PROVIT_AGENT
+from ..utils import open_json
 
-PROVIT_ACTIVITY = "build_staff_heatmap"
-PROVIT_DESCRIPTION = (
-    "Heatmap of the top {n} staffmembers working on most games in the dataset."
-)
+class StaffHeatmapBuilder(Builder):
 
+    PROVIT_ACTIVITY = "build_staff_heatmap"
+    PROVIT_DESCRIPTION = (
+        "Heatmap of the top {n} staffmembers working on most games in the dataset."
+    )
+    HEATMAP_FILENAME= "{project_name}_staff_heatmap_topn_{n}.{out_format}"
 
-class StaffHeatmap:
-    def __init__(self, n=30, out_format="png", title="Staff Heatmap"):
-
+    def __init__(self, games_dataset_path, diggr_api_url, n, title):
+        self.games = open_json(games_dataset_path)
         self.plot_title = title
         self._n = n
-        self.out_format = out_format
+        self.daft = diggr_api_url + "/mobygames/slug/{slug}"
 
-        self.cf = get_config()
-        self.daft = self.cf.daft + "/mobygames/slug/{slug}"
+        super().__init__([games_dataset_path], "mobygames")
 
-        with open(self.cf.datasets["games"]) as f:
-            self.games = json.load(f)
-
-        self.build_heatmap()
 
     def find_vips(self):
         vips = Counter()
@@ -40,8 +36,7 @@ class StaffHeatmap:
                 vips[self.developers[name]] += 1  # len(roles) #1
         return vips
 
-    # build credits dataset
-    def build_heatmap(self):
+    def build_dataset(self, outfilename):
         self.dataset = []
         self.developers = {}
 
@@ -113,22 +108,31 @@ class StaffHeatmap:
         plt.setp(ax.xaxis.get_majorticklabels(), rotation=-45, ha="left")
         cb = plt.colorbar(c, ticks=range(int(max(dataset.max())) + 1))
 
-        # save plot
-        filepath = self.cf.dirs["staff_heatmap"] / "{}_staff_heatmap_topn_{}.{}".format(
-            self.cf.project_name, self._n, self.out_format
-        )
         plt.tight_layout()
-        plt.savefig(filepath)
+        plt.savefig(outfilename)
 
-        print("\nSave visualization ...")
-        print("File location: {}".format(filepath))
+        return outfilename
 
-        prov = Provenance(filepath, overwrite=True)
-        prov.add(
-            agents=[PROVIT_AGENT],
-            activity=PROVIT_ACTIVITY,
-            description=PROVIT_DESCRIPTION,
+
+def build_staff_heatmap(
+        games_dataset_path,
+        diggr_api_url,
+        project_name,
+        staff_heatmap_path,
+        n=30,
+        out_format="png",
+        title="Staff Heatmap",
+    ):
+        """
+        Staff Heatmap Factory
+        """
+        shb = StaffHeatmapBuilder(games_dataset_path, diggr_api_url, n, title)
+        outfilename = staff_heatmap_path / shb.HEATMAP_FILENAME.format(
+            project_name = project_name,
+            n = n,
+            out_format = out_format
         )
-        prov.add_sources([self.cf.datasets["games"]])
-        prov.add_primary_source("mobygames")
-        prov.save()
+        outfilename = shb.build(outfilename)
+        return outfilename
+
+
