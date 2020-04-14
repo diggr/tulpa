@@ -1,6 +1,7 @@
 import requests
 
 from .builder import Builder
+from diggrtoolbox.unified_api import DiggrAPI
 from ..utils import print_last_prov_entry, open_yaml, open_json, save_json
 
 
@@ -12,19 +13,12 @@ class GamesDatasetBuilder(Builder):
     )
 
     def __init__(self, gamelist_path, diggr_api_url):
-        self.diggr_api = diggr_api_url + "/mobygames/slug/{slug}"
+        self.diggr_api = DiggrAPI(diggr_api_url, get_on_item=True).dataset("mobygames")
         self.games = open_yaml(gamelist_path)
-        self.session = requests.Session()
         super().__init__([gamelist_path], "mobygames")
 
     def _get_company_id(self, slug):
-        rsp = self.session.get(self.diggr_api.format(slug=slug))
-        if rsp.ok:
-            data = rsp.json()
-            return data["entry"]["id"]
-        else:
-            print(f"Error while processing {slug}")
-            return None
+        return self.diggr_api.item(slug)["id"]
 
     def build_dataset(self, outfilename):
         """
