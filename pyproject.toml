@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tulpa"
-version = "1.0.0"
+version = "1.1.0"
 description = "Build research datasets and visualizations with videogame metadata."
 authors = [
 	"Peter Mühleder <muehleder@ub.uni-leipzig.de>",
