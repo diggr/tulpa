@@ -2,6 +2,7 @@ import requests
 import random
 import yaml
 
+from diggrtoolbox.unified_api import DiggrAPI
 from requests.compat import urljoin
 from tqdm import tqdm
 
@@ -10,26 +11,17 @@ MOBYGAMES = "mobygames"
 
 class GamelistGenerator:
     def __init__(self, daft_url, gamelist_filename, mobygames=MOBYGAMES):
+        self.diggr_api = DiggrAPI(daft_url, get_on_item=True).dataset(mobygames)
         self.daft_url = daft_url
         self.gamelist_filename = gamelist_filename
         self.s = requests.Session()
         self.mobygames_url = urljoin(self.daft_url, mobygames)
 
-    def mobygames_ids(self):
-        rsp = self.s.get(self.mobygames_url)
-        self.ids = rsp.json()["ids"]
-        return self.ids
-
     def mobygames_entries(self):
         if not hasattr(self, "ids"):
-            rsp = self.s.get(self.mobygames_url)
-            self.ids = rsp.json()["ids"]
+            self.ids = self.diggr_api.get()
         for mg_id in self.ids:
-            yield self.mobygames_entry(mg_id)
-
-    def mobygames_entry(self, mg_id):
-        rsp = self.s.get(self.mobygames_url + f"/{mg_id}")
-        return rsp.json()["entry"]
+            yield self.diggr_api.item(mg_id)
 
     def iter_titles(self, entry):
         yield entry["title"]
@@ -44,9 +36,7 @@ class GamelistGenerator:
 
     def std_id(self, dataset_name, id_):
         if dataset_name == "mobygames":
-            rsp = self.s.get(self.mobygames_url + f"/{id_}")
-            data = rsp.json()
-            url = data["entry"]["raw"]["moby_url"]
+            url = self.diggr_api.item(id_)["raw"]["moby_url"]
             return url.split("/")[-1]
         elif dataset_name == "gamefaqs":
             return id_.replace("__", "/")
@@ -71,8 +61,8 @@ class GamelistGenerator:
     def build_gamelist(self, mg):
         dataset = {}
         for entry in mg:
-            rsp = self.s.get(self.mobygames_url + f"/{entry['id']}/links")
-            links = rsp.json()["links"]
+            mg_links = DiggrAPI(self.daft_url, get_on_item=True).dataset("mobygames").filter("links")
+            links = mg_links.item(entry['id'])
 
             slug = self.std_id("mobygames", entry["id"])
 
@@ -111,10 +101,10 @@ class GamelistGenerator:
         self.sample_size = sample_size
 
         mg = []
-        choices = random.choices(self.mobygames_ids(), k=self.sample_size)
+        choices = random.choices(self.diggr_api.get(), k=self.sample_size)
 
         for mg_id in tqdm(choices):
-            entry = self.mobygames_entry(mg_id)
+            entry = self.diggr_api.item(mg_id)
             mg.append({"title": entry["title"], "id": entry["id"]})
             tqdm.write("- " + entry["title"])
         self.build_gamelist(mg)
@@ -127,8 +117,7 @@ class GamelistGenerator:
         self.company = company
 
         mg = []
-        print("searching in mobygames dataset ...")
-        for entry in tqdm(self.mobygames_entries(), total=len(self.mobygames_ids())):
+        for entry in tqdm(self.mobygames_entries(), total=len(self.diggr_api.get())):
             added = False
             if self.query:
                 for title in self.iter_titles(entry):

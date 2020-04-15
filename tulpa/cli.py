@@ -74,7 +74,12 @@ def build(query, company):
     to the given query and/or company.
     """
     print("Building gamelist...")
-    outfilename = build_gamelist(query, company,)
+    outfilename = build_gamelist(
+        query,
+        company,
+        cfg.daft,
+        cfg.gamelist_file
+        )
     print(f"File saved to: {outfilename}")
 
 
