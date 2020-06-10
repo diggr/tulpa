@@ -274,7 +274,7 @@ $ tulpa vis games-data-table
 - 2019-2020, Universitätsbibliothek Leipzig <info@ub.uni-leipzig.de>
 
 ## Authors
-- P. Mühleder <muehleder@ub.uni-leipzig.de>
+- P. Mühleder <muehleder@saw-leipzig.de>
 - F. Rämisch <raemisch@ub.uni-leipzig.de>
 
 ## Licence
