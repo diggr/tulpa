@@ -13,7 +13,11 @@ class CompaniesDatasetBuilder(Builder):
     )
 
     def __init__(self, diggr_api_url, games_dataset_path):
-        self.diggr_api = DiggrAPI(diggr_api_url, get_on_item=True).dataset("mobygames").filter("companies")
+        self.diggr_api = (
+            DiggrAPI(diggr_api_url, get_on_item=True)
+            .dataset("mobygames")
+            .filter("companies")
+        )
         self.games_dataset_path = games_dataset_path
         super().__init__([games_dataset_path], "mobygames")
 

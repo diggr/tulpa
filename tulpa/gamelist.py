@@ -61,8 +61,12 @@ class GamelistGenerator:
     def build_gamelist(self, mg):
         dataset = {}
         for entry in mg:
-            mg_links = DiggrAPI(self.daft_url, get_on_item=True).dataset("mobygames").filter("links")
-            links = mg_links.item(entry['id'])
+            mg_links = (
+                DiggrAPI(self.daft_url, get_on_item=True)
+                .dataset("mobygames")
+                .filter("links")
+            )
+            links = mg_links.item(entry["id"])
 
             slug = self.std_id("mobygames", entry["id"])
 

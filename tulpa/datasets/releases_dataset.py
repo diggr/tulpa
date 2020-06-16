@@ -23,7 +23,6 @@ class ReleasesDatasetBuilder(Builder):
             return None
         return self.diggr_api.item(id_)
 
-
     def build_dataset(self, outfilename):
 
         dataset = {}

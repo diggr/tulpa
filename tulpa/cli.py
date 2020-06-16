@@ -74,12 +74,7 @@ def build(query, company):
     to the given query and/or company.
     """
     print("Building gamelist...")
-    outfilename = build_gamelist(
-        query,
-        company,
-        cfg.daft,
-        cfg.gamelist_file
-        )
+    outfilename = build_gamelist(query, company, cfg.daft, cfg.gamelist_file)
     print(f"File saved to: {outfilename}")
 
 
@@ -263,7 +258,13 @@ def staff_size(output_format, title):
 
 
 @vis.command()
-def games_data_table():
+@click.option(
+    "--count/--first-release",
+    is_flag=True,
+    default=True,
+    help="List No. of releases or year of earliest release in region",
+)
+def games_data_table(count):
     print("Building games data table...")
     try:
         outfilename = build_games_data_table(
@@ -271,6 +272,7 @@ def games_data_table():
             cfg.datasets["releases"],
             cfg.project_name,
             cfg.dirs["games_data_table"],
+            count,
         )
     except RuntimeError as e:
         sys.exit(e)

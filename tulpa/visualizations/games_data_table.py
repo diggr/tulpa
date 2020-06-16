@@ -19,9 +19,10 @@ class GamesDataTableBuilder(Builder):
     PROVIT_DESCRIPTION = "Building the games data table using lemongrab."
     GAMES_DATA_TABLE_FILENAME = "{project_name}_games_data_table.csv"
 
-    def __init__(self, games_dataset_path, releases_dataset_path):
+    def __init__(self, games_dataset_path, releases_dataset_path, count):
         self.games = open_json(games_dataset_path)
         self.releases = open_json(releases_dataset_path)
+        self.count = count
 
         super().__init__([games_dataset_path, releases_dataset_path], "wikidata")
 
@@ -46,7 +47,10 @@ class GamesDataTableBuilder(Builder):
             all_releases = 0
             releases = self.get_release_data(title)
             for release in releases:
-                entry[release["region"]] = release["count"]
+                if self.count:
+                    entry[release["region"]] = release["count"]
+                else:
+                    entry[release["region"]] = release["earliest"]
                 all_releases += release["count"]
             entry["n_releases"] = all_releases
             entry["platforms"] = ",".join(sorted(data["platforms"]))
@@ -99,18 +103,38 @@ class GamesDataTableBuilder(Builder):
 
         dataset = []
         for region, r in self.releases[game_id].items():
-            dataset.append({"region": region + "_releases", "count": len(r)})
+            release_dates = [release["date"][:4] for release in r]
+            for release_date in release_dates:
+                try:
+                    int(release_date)
+                except ValueError:
+                    release_dates.remove(release_date)
+            if len(release_dates):
+                earliest_release = min(sorted(release_dates))
+            else:
+                earliest_release = 0
+            dataset.append(
+                {
+                    "region": region + "_releases",
+                    "count": len(r),
+                    "earliest": earliest_release,
+                }
+            )
 
         return dataset
 
 
 def build_games_data_table(
-    games_dataset_path, releases_dataset_path, project_name, games_data_table_path
+    games_dataset_path,
+    releases_dataset_path,
+    project_name,
+    games_data_table_path,
+    count,
 ):
     """
     Games Data Table Factory
     """
-    gdtb = GamesDataTableBuilder(games_dataset_path, releases_dataset_path)
+    gdtb = GamesDataTableBuilder(games_dataset_path, releases_dataset_path, count)
     outfilename = games_data_table_path / gdtb.GAMES_DATA_TABLE_FILENAME.format(
         project_name=project_name
     )
