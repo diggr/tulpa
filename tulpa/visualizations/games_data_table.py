@@ -17,7 +17,7 @@ class GamesDataTableBuilder(Builder):
 
     PROVIT_ACTIVITY = "build_games_data_table"
     PROVIT_DESCRIPTION = "Building the games data table using lemongrab."
-    GAMES_DATA_TABLE_FILENAME = "{project_name}_games_data_table.csv"
+    GAMES_DATA_TABLE_FILENAME = "{project_name}_games_data_table_{count_str}.csv"
 
     def __init__(self, games_dataset_path, releases_dataset_path, count):
         self.games = open_json(games_dataset_path)
@@ -134,9 +134,14 @@ def build_games_data_table(
     """
     Games Data Table Factory
     """
+    if count:
+        count_str = "count"
+    else:
+        count_str = "earliest"
     gdtb = GamesDataTableBuilder(games_dataset_path, releases_dataset_path, count)
     outfilename = games_data_table_path / gdtb.GAMES_DATA_TABLE_FILENAME.format(
-        project_name=project_name
+        project_name=project_name,
+        count_str=count_str
     )
     outfilename = gdtb.build(outfilename)
     return outfilename
