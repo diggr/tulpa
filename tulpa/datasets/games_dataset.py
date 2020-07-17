@@ -28,7 +28,10 @@ class GamesDatasetBuilder(Builder):
         for title, links in self.games.items():
             mg_ids = []
             for mg_slug in links["mobygames"]:
-                company_id = self._get_company_id(mg_slug)
+                try:
+                    company_id = self._get_company_id(mg_slug)
+                except RuntimeError:
+                    continue
                 if company_id:
                     mg_ids.append(company_id)
                 else:
